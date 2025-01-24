@@ -17,6 +17,99 @@ const SUITS = {
   STAR: "⭐", // star suit
 };
 
+// Add new constants
+export const RARITY = {
+  COMMON: "common",
+  UNCOMMON: "uncommon",
+  RARE: "rare",
+};
+
+const RELICS = [
+  {
+    id: "coral-crown",
+    name: "Coral Crown",
+    emoji: "👑",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "All seafolk cards gain +1 water value",
+  },
+  {
+    id: "pearl-necklace",
+    name: "Pearl Necklace",
+    emoji: "📿",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "Gain 1 pearl at the start of each round",
+  },
+  {
+    id: "ancient-compass",
+    name: "Ancient Compass",
+    emoji: "🧭",
+    cost: 2,
+    rarity: RARITY.COMMON,
+    effect: "See one extra card when drawing options",
+  },
+  {
+    id: "lucky-shell",
+    name: "Lucky Shell",
+    emoji: "🐚",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "First reroll each round is free",
+  },
+  {
+    id: "merfolk-charm",
+    name: "Merfolk Charm",
+    emoji: "🧜‍♀️",
+    cost: 5,
+    rarity: RARITY.RARE,
+    effect: "Machine multipliers are 0.5 higher",
+  },
+];
+
+const CONSUMABLES = [
+  {
+    id: "water-potion",
+    name: "Water Potion",
+    emoji: "🧪",
+    cost: 2,
+    rarity: RARITY.COMMON,
+    effect: "Add 3 water to current total",
+  },
+  {
+    id: "pearl-dust",
+    name: "Pearl Dust",
+    emoji: "✨",
+    cost: 1,
+    rarity: RARITY.COMMON,
+    effect: "Gain 2 pearls immediately",
+  },
+  {
+    id: "whirlpool",
+    name: "Whirlpool",
+    emoji: "🌀",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "Reshuffle all cards back into deck",
+  },
+  {
+    id: "treasure-map",
+    name: "Treasure Map",
+    emoji: "🗺️",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "Choose any card from the deck",
+  },
+  {
+    id: "mystic-conch",
+    name: "Mystic Conch",
+    emoji: "🐚",
+    cost: 2,
+    rarity: RARITY.UNCOMMON,
+    effect: "Next card played costs no rerolls",
+  },
+];
+
 class GameStore {
   state = {
     round: 1,
@@ -38,6 +131,12 @@ class GameStore {
     rerollsRemaining: 5, // Rerolls per round
     pearlRerollCost: 1, // Cost in pearls to reroll when out of rerolls
     waterGoalIncrement: 5, // How much water goal increases per round
+    relics: [], // Owned relics
+    consumables: [], // Owned consumables
+    shopRelics: [], // Currently displayed relics in shop
+    shopConsumables: [], // Currently displayed consumables in shop
+    maxRelics: 3, // Maximum relics that can be held
+    maxConsumables: 4, // Maximum consumables that can be held
   };
 
   constructor() {
@@ -367,9 +466,10 @@ class GameStore {
     // Clear the board
     this.state.boardSlots = Array(10).fill(null);
 
-    // Enter shop phase and draw initial shop cards
+    // Enter shop phase and draw all shop options
     this.state.isShopPhase = true;
     this.drawShopCards();
+    this.drawShopItems();
   }
 
   canAdvanceRound() {
@@ -493,6 +593,56 @@ class GameStore {
     this.state.discardPile = [];
     // Shuffle the new deck
     this.state.mainDeck = this.shuffleArray(this.state.mainDeck);
+  }
+
+  drawShopItems() {
+    // Draw 3 random relics
+    const availableRelics = RELICS.filter(
+      (r) => !this.state.relics.find((owned) => owned.id === r.id)
+    );
+    this.state.shopRelics = this.shuffleArray([...availableRelics]).slice(0, 3);
+
+    // Draw 3 random consumables
+    const availableConsumables = CONSUMABLES;
+    this.state.shopConsumables = this.shuffleArray([
+      ...availableConsumables,
+    ]).slice(0, 3);
+  }
+
+  buyRelic(relic) {
+    if (this.state.pearls < relic.cost) {
+      console.log("Not enough pearls!");
+      return false;
+    }
+    if (this.state.relics.length >= this.state.maxRelics) {
+      console.log("Relic inventory full!");
+      return false;
+    }
+
+    this.state.pearls -= relic.cost;
+    this.state.relics.push(relic);
+    this.state.shopRelics = this.state.shopRelics.filter(
+      (r) => r.id !== relic.id
+    );
+    return true;
+  }
+
+  buyConsumable(consumable) {
+    if (this.state.pearls < consumable.cost) {
+      console.log("Not enough pearls!");
+      return false;
+    }
+    if (this.state.consumables.length >= this.state.maxConsumables) {
+      console.log("Consumable inventory full!");
+      return false;
+    }
+
+    this.state.pearls -= consumable.cost;
+    this.state.consumables.push(consumable);
+    this.state.shopConsumables = this.state.shopConsumables.filter(
+      (c) => c.id !== consumable.id
+    );
+    return true;
   }
 }
 

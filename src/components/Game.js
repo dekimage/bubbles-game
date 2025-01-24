@@ -14,6 +14,8 @@ import {
 import Card from "./Card";
 import CardViewer from "./CardViewer";
 import ShopPhase from "./ShopPhase";
+import * as Popover from "@radix-ui/react-popover";
+import ItemPopover from "./ItemPopover";
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -58,6 +60,49 @@ const Game = observer(() => {
       <div className="min-h-screen bg-slate-900 text-white p-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 bg-slate-800 p-4 rounded-lg">
+          <div className="flex gap-4">
+            {/* Relics */}
+            <div className="flex gap-2">
+              {gameStore.state.relics.map((relic) => (
+                <Popover.Root key={relic.id}>
+                  <Popover.Trigger asChild>
+                    <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                      {relic.emoji}
+                    </div>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="z-50" sideOffset={5}>
+                      <ItemPopover item={relic} />
+                      <Popover.Arrow className="fill-slate-700" />
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              ))}
+            </div>
+            {/* Consumables */}
+            <div className="flex gap-2">
+              {gameStore.state.consumables.map((consumable) => (
+                <Popover.Root key={consumable.id}>
+                  <Popover.Trigger asChild>
+                    <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                      {consumable.emoji}
+                    </div>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="z-50" sideOffset={5}>
+                      <ItemPopover
+                        item={consumable}
+                        isConsumable={true}
+                        onUse={() => gameStore.useConsumable(consumable)}
+                      />
+                      <Popover.Arrow className="fill-slate-700" />
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              ))}
+            </div>
+          </div>
+
           <div>
             Round: {gameStore.state.round}/{gameStore.state.maxRounds}
           </div>
