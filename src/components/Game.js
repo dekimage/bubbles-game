@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { motion } from "framer-motion";
 import { gameStore } from "@/stores/gameStore";
@@ -11,8 +12,12 @@ import {
   FaRedoAlt,
 } from "react-icons/fa";
 import Card from "./Card";
+import CardViewer from "./CardViewer";
 
 const Game = observer(() => {
+  const [viewingDeck, setViewingDeck] = useState(false);
+  const [viewingDiscard, setViewingDiscard] = useState(false);
+
   const renderSlot = (index) => {
     const card = gameStore.state.boardSlots[index];
     const isPendingShop =
@@ -221,6 +226,7 @@ const Game = observer(() => {
                      rounded-lg hover:bg-slate-600 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setViewingDiscard(true)}
           >
             <FaTrashAlt className="text-xl mb-1" />
             <span className="text-xs">
@@ -233,9 +239,12 @@ const Game = observer(() => {
                      rounded-lg hover:bg-slate-600 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setViewingDeck(true)}
           >
             <FaLayerGroup className="text-xl mb-1" />
-            <span className="text-xs">Deck</span>
+            <span className="text-xs">
+              Deck ({gameStore.state.mainDeck.length})
+            </span>
           </motion.button>
 
           <motion.button
@@ -268,26 +277,17 @@ const Game = observer(() => {
                 <motion.button
                   className={`px-4 py-2 rounded-lg font-bold mb-2 flex items-center gap-2
                             ${
-                              gameStore.state.pearls >=
-                              gameStore.state.rerollCost
+                              gameStore.canReroll()
                                 ? "bg-purple-600 hover:bg-purple-500"
                                 : "bg-gray-600 cursor-not-allowed opacity-50"
                             }`}
-                  whileHover={
-                    gameStore.state.pearls >= gameStore.state.rerollCost
-                      ? { scale: 1.05 }
-                      : {}
-                  }
-                  whileTap={
-                    gameStore.state.pearls >= gameStore.state.rerollCost
-                      ? { scale: 0.95 }
-                      : {}
-                  }
+                  whileHover={gameStore.canReroll() ? { scale: 1.05 } : {}}
+                  whileTap={gameStore.canReroll() ? { scale: 0.95 } : {}}
                   onClick={() => gameStore.rerollCards()}
-                  disabled={gameStore.state.pearls < gameStore.state.rerollCost}
+                  disabled={!gameStore.canReroll()}
                 >
                   <FaRedoAlt className="animate-spin-slow" />
-                  Reroll (💎{gameStore.state.rerollCost})
+                  Reroll ({gameStore.getRerollCost()})
                 </motion.button>
 
                 {/* Card Options */}
@@ -334,6 +334,21 @@ const Game = observer(() => {
           </motion.button>
         </div>
       </div>
+
+      {/* Card Viewers */}
+      <CardViewer
+        isOpen={viewingDeck}
+        onClose={() => setViewingDeck(false)}
+        cards={gameStore.state.mainDeck}
+        title="Main Deck"
+      />
+
+      <CardViewer
+        isOpen={viewingDiscard}
+        onClose={() => setViewingDiscard(false)}
+        cards={gameStore.state.discardPile}
+        title="Discard Pile"
+      />
     </div>
   );
 });

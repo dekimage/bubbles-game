@@ -35,6 +35,9 @@ class GameStore {
     shopSlotIndex: null, // The random slot that will draw from shop deck
     pendingShopChoices: Array(10).fill(null), // Store pending shop choices for each slot
     rerollCost: 1, // Cost in pearls to reroll
+    rerollsRemaining: 5, // Rerolls per round
+    pearlRerollCost: 1, // Cost in pearls to reroll when out of rerolls
+    waterGoalIncrement: 5, // How much water goal increases per round
   };
 
   constructor() {
@@ -123,7 +126,7 @@ class GameStore {
 
   createSeafolkCards() {
     const cards = [];
-    const values = [1, 1, 1, 2, 2, 3, 4, 5]; // Distribution per suit
+    const values = [1, 2, 3, 4, 5]; // One of each value per suit
 
     Object.entries(SUITS).forEach(([suitName, suitEmoji]) => {
       values.forEach((value) => {
@@ -143,7 +146,7 @@ class GameStore {
 
   createMachineCards() {
     const cards = [];
-    const multipliers = [1.3, 1.5, 2.0];
+    const multipliers = [1.5, 2.0, 3.0];
 
     Object.entries(SUITS).forEach(([suitName, suitEmoji]) => {
       multipliers.forEach((multiplier) => {
@@ -246,25 +249,39 @@ class GameStore {
   }
 
   drawShopCards() {
-    // If we have pending choices for this slot, use those
-    if (this.state.pendingShopChoices[this.state.selectedSlotIndex]) {
+    // If we have pending choices for this slot AND we're not rerolling
+    if (
+      this.state.pendingShopChoices[this.state.selectedSlotIndex] &&
+      this.state.displayedCards.length === 0
+    ) {
       this.state.displayedCards =
         this.state.pendingShopChoices[this.state.selectedSlotIndex];
       return;
     }
 
-    // Otherwise draw new cards
+    // Clear current displayed cards first
+    this.state.displayedCards = [];
+
+    // Draw exactly 3 new cards
     const availableCards = [...this.state.shopDeck];
     const drawnCards = [];
 
     for (let i = 0; i < 3 && availableCards.length > 0; i++) {
       const randomIndex = Math.floor(Math.random() * availableCards.length);
-      drawnCards.push(availableCards.splice(randomIndex, 1)[0]);
+      const drawnCard = availableCards.splice(randomIndex, 1)[0];
+      drawnCards.push(drawnCard);
+      // Remove the drawn card from the shop deck
+      this.state.shopDeck = this.state.shopDeck.filter(
+        (card) => card.id !== drawnCard.id
+      );
     }
 
     this.state.displayedCards = drawnCards;
-    // Store these choices for later
-    this.state.pendingShopChoices[this.state.selectedSlotIndex] = drawnCards;
+
+    // Store these choices for later (only on initial draw, not reroll)
+    if (!this.state.pendingShopChoices[this.state.selectedSlotIndex]) {
+      this.state.pendingShopChoices[this.state.selectedSlotIndex] = drawnCards;
+    }
   }
 
   skipShopChoice() {
@@ -358,10 +375,13 @@ class GameStore {
 
     // Update round and water goal
     this.state.round += 1;
-    this.state.waterGoal += 10;
+    this.state.waterGoal += this.state.waterGoalIncrement;
 
     // Reset current water
     this.state.currentWater = 0;
+
+    // Reset rerolls
+    this.state.rerollsRemaining = 5;
 
     // Save game state
     this.saveGame();
@@ -372,37 +392,57 @@ class GameStore {
   }
 
   rerollCards() {
-    if (this.state.pearls < this.state.rerollCost) {
-      console.log("Not enough pearls to reroll!");
+    // Check if we can reroll
+    if (
+      this.state.rerollsRemaining === 0 &&
+      this.state.pearls < this.state.pearlRerollCost
+    ) {
+      console.log("Not enough rerolls or pearls!");
       return;
     }
 
-    // Deduct reroll cost
-    this.state.pearls -= this.state.rerollCost;
+    // Use reroll or deduct pearl
+    if (this.state.rerollsRemaining > 0) {
+      this.state.rerollsRemaining--;
+    } else {
+      this.state.pearls -= this.state.pearlRerollCost;
+    }
 
-    // Return current displayed cards to appropriate deck
     const isShopSlot =
       this.state.selectedSlotIndex === this.state.shopSlotIndex;
-    const targetDeck = isShopSlot ? this.state.shopDeck : this.state.mainDeck;
 
-    // Put displayed cards back in deck
-    this.state.displayedCards.forEach((card) => {
-      targetDeck.push(card);
-    });
-
-    // Shuffle the deck
     if (isShopSlot) {
+      // Shop cards: Return to shop deck and reshuffle
+      this.state.displayedCards.forEach((card) => {
+        this.state.shopDeck.push(card);
+      });
       this.state.shopDeck = this.shuffleArray(this.state.shopDeck);
-    } else {
-      this.state.mainDeck = this.shuffleArray(this.state.mainDeck);
-    }
-
-    // Draw new cards
-    if (isShopSlot) {
       this.drawShopCards();
     } else {
+      // Regular cards: Move to discard pile and remove from main deck
+      this.state.displayedCards.forEach((card) => {
+        this.state.discardPile.push(card);
+        // Remove from main deck
+        this.state.mainDeck = this.state.mainDeck.filter(
+          (c) => c.id !== card.id
+        );
+      });
+      this.state.displayedCards = [];
       this.drawDisplayCards();
     }
+  }
+
+  canReroll() {
+    return (
+      this.state.rerollsRemaining > 0 ||
+      this.state.pearls >= this.state.pearlRerollCost
+    );
+  }
+
+  getRerollCost() {
+    return this.state.rerollsRemaining > 0
+      ? `${this.state.rerollsRemaining} left`
+      : `💎${this.state.pearlRerollCost}`;
   }
 }
 
