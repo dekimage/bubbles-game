@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { FaRedoAlt } from "react-icons/fa";
 
 // Card type constants
 const CARD_TYPES = {
@@ -21,7 +22,7 @@ class GameStore {
     round: 1,
     maxRounds: 12,
     currentWater: 0,
-    waterGoal: 50,
+    waterGoal: 20,
     pearls: 0,
     mainDeck: [],
     discardPile: [],
@@ -33,6 +34,7 @@ class GameStore {
     shopDeck: [],
     shopSlotIndex: null, // The random slot that will draw from shop deck
     pendingShopChoices: Array(10).fill(null), // Store pending shop choices for each slot
+    rerollCost: 1, // Cost in pearls to reroll
   };
 
   constructor() {
@@ -49,9 +51,9 @@ class GameStore {
       ...this.createConsumableCards(),
     ];
 
-    // Initialize shop deck (for now, let's create some special cards)
+    // Extended shop deck with more cards
     const shopDeck = [
-      // Example shop cards - we can modify these
+      // Existing cards
       {
         id: `shop-seafolk-1`,
         type: CARD_TYPES.SEAFOLK,
@@ -69,7 +71,47 @@ class GameStore {
         multiplier: 2.5,
         cost: 3,
       },
-      // Add more shop cards as needed
+      // New additional shop cards
+      {
+        id: `shop-seafolk-2`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        value: 7,
+        waterValue: 7,
+        cost: 3,
+      },
+      {
+        id: `shop-machine-2`,
+        type: CARD_TYPES.MACHINE,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        multiplier: 3.0,
+        cost: 5,
+      },
+      {
+        id: `shop-economy-1`,
+        type: CARD_TYPES.ECONOMY,
+        pearlValue: 4,
+        cost: 3,
+      },
+      {
+        id: `shop-seafolk-3`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        value: 8,
+        waterValue: 8,
+        cost: 4,
+      },
+      {
+        id: `shop-machine-3`,
+        type: CARD_TYPES.MACHINE,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        multiplier: 2.0,
+        cost: 2,
+      },
     ];
 
     this.state.mainDeck = this.shuffleArray(mainDeck);
@@ -294,6 +336,72 @@ class GameStore {
     const savedState = localStorage.getItem("gameState");
     if (savedState) {
       this.state = JSON.parse(savedState);
+    }
+  }
+
+  nextRound() {
+    // Move all played cards to discard pile
+    this.state.boardSlots.forEach((card) => {
+      if (card) {
+        this.state.discardPile.push(card);
+      }
+    });
+
+    // Clear the board
+    this.state.boardSlots = Array(10).fill(null);
+
+    // Clear any pending shop choices
+    this.state.pendingShopChoices = Array(10).fill(null);
+
+    // Pick new random shop slot
+    this.state.shopSlotIndex = Math.floor(Math.random() * 10);
+
+    // Update round and water goal
+    this.state.round += 1;
+    this.state.waterGoal += 10;
+
+    // Reset current water
+    this.state.currentWater = 0;
+
+    // Save game state
+    this.saveGame();
+  }
+
+  canAdvanceRound() {
+    return this.state.currentWater >= this.state.waterGoal;
+  }
+
+  rerollCards() {
+    if (this.state.pearls < this.state.rerollCost) {
+      console.log("Not enough pearls to reroll!");
+      return;
+    }
+
+    // Deduct reroll cost
+    this.state.pearls -= this.state.rerollCost;
+
+    // Return current displayed cards to appropriate deck
+    const isShopSlot =
+      this.state.selectedSlotIndex === this.state.shopSlotIndex;
+    const targetDeck = isShopSlot ? this.state.shopDeck : this.state.mainDeck;
+
+    // Put displayed cards back in deck
+    this.state.displayedCards.forEach((card) => {
+      targetDeck.push(card);
+    });
+
+    // Shuffle the deck
+    if (isShopSlot) {
+      this.state.shopDeck = this.shuffleArray(this.state.shopDeck);
+    } else {
+      this.state.mainDeck = this.shuffleArray(this.state.mainDeck);
+    }
+
+    // Draw new cards
+    if (isShopSlot) {
+      this.drawShopCards();
+    } else {
+      this.drawDisplayCards();
     }
   }
 }

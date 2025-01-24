@@ -8,6 +8,7 @@ import {
   FaLayerGroup,
   FaGem,
   FaQuestionCircle,
+  FaRedoAlt,
 } from "react-icons/fa";
 import Card from "./Card";
 
@@ -52,7 +53,13 @@ const Game = observer(() => {
         <div>
           Round: {gameStore.state.round}/{gameStore.state.maxRounds}
         </div>
-        <div>
+        <div
+          className={`font-bold ${
+            gameStore.state.currentWater >= gameStore.state.waterGoal
+              ? "text-green-400"
+              : "text-white"
+          }`}
+        >
           Water: {gameStore.state.currentWater}/{gameStore.state.waterGoal}
         </div>
         <div>Pearls: {gameStore.state.pearls}</div>
@@ -252,33 +259,80 @@ const Game = observer(() => {
           </motion.button>
         </div>
 
-        {/* Card Selection */}
-        {gameStore.state.displayedCards.length > 0 && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex justify-center gap-4">
-              {gameStore.state.displayedCards.map((card) => (
-                <Card
-                  key={card.id}
-                  card={card}
-                  onClick={() => gameStore.selectCard(card)}
-                />
-              ))}
-            </div>
+        {/* Card Selection with Next Round Button */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            {gameStore.state.displayedCards.length > 0 && (
+              <div className="flex flex-col items-center gap-4">
+                {/* Reroll Button */}
+                <motion.button
+                  className={`px-4 py-2 rounded-lg font-bold mb-2 flex items-center gap-2
+                            ${
+                              gameStore.state.pearls >=
+                              gameStore.state.rerollCost
+                                ? "bg-purple-600 hover:bg-purple-500"
+                                : "bg-gray-600 cursor-not-allowed opacity-50"
+                            }`}
+                  whileHover={
+                    gameStore.state.pearls >= gameStore.state.rerollCost
+                      ? { scale: 1.05 }
+                      : {}
+                  }
+                  whileTap={
+                    gameStore.state.pearls >= gameStore.state.rerollCost
+                      ? { scale: 0.95 }
+                      : {}
+                  }
+                  onClick={() => gameStore.rerollCards()}
+                  disabled={gameStore.state.pearls < gameStore.state.rerollCost}
+                >
+                  <FaRedoAlt className="animate-spin-slow" />
+                  Reroll (💎{gameStore.state.rerollCost})
+                </motion.button>
 
-            {/* Skip button for shop choices */}
-            {gameStore.state.selectedSlotIndex ===
-              gameStore.state.shopSlotIndex && (
-              <motion.button
-                className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => gameStore.skipShopChoice()}
-              >
-                Skip (Decide Later)
-              </motion.button>
+                {/* Card Options */}
+                <div className="flex justify-center gap-4">
+                  {gameStore.state.displayedCards.map((card) => (
+                    <Card
+                      key={card.id}
+                      card={card}
+                      onClick={() => gameStore.selectCard(card)}
+                    />
+                  ))}
+                </div>
+
+                {/* Skip button for shop choices */}
+                {gameStore.state.selectedSlotIndex ===
+                  gameStore.state.shopSlotIndex && (
+                  <motion.button
+                    className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => gameStore.skipShopChoice()}
+                  >
+                    Skip (Decide Later)
+                  </motion.button>
+                )}
+              </div>
             )}
           </div>
-        )}
+
+          {/* Next Round Button */}
+          <motion.button
+            className={`px-6 py-3 rounded-lg font-bold shadow-lg ml-4
+                      ${
+                        gameStore.canAdvanceRound()
+                          ? "bg-green-600 hover:bg-green-500"
+                          : "bg-gray-600 cursor-not-allowed opacity-50"
+                      }`}
+            whileHover={gameStore.canAdvanceRound() ? { scale: 1.05 } : {}}
+            whileTap={gameStore.canAdvanceRound() ? { scale: 0.95 } : {}}
+            onClick={() => gameStore.canAdvanceRound() && gameStore.nextRound()}
+            disabled={!gameStore.canAdvanceRound()}
+          >
+            Next Round
+          </motion.button>
+        </div>
       </div>
     </div>
   );
