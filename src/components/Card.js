@@ -68,6 +68,17 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
           {card.suit}
         </div>
       )}
+
+      {/* Badges */}
+      {card.upgrades && card.upgrades.length > 0 && (
+        <div className="absolute top-1 right-1 flex gap-1">
+          {card.upgrades.map((badge, index) => (
+            <span key={index} className="text-lg">
+              {badge.emoji}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 

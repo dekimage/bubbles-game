@@ -110,6 +110,13 @@ const CONSUMABLES = [
   },
 ];
 
+const BADGES = {
+  RED: { type: "red", emoji: "🔴", name: "Power Badge" },
+  BLUE: { type: "blue", emoji: "🔵", name: "Water Badge" },
+  YELLOW: { type: "yellow", emoji: "🟡", name: "Pearl Badge" },
+  PURPLE: { type: "purple", emoji: "🟣", name: "Magic Badge" },
+};
+
 class GameStore {
   state = {
     round: 1,
@@ -137,6 +144,11 @@ class GameStore {
     shopConsumables: [], // Currently displayed consumables in shop
     maxRelics: 3, // Maximum relics that can be held
     maxConsumables: 4, // Maximum consumables that can be held
+    removalCost: 3, // Cost in pearls for removal service
+    cardRemovalOptions: [], // Cards shown for removal
+    selectedCardForRemoval: null, // Card selected to be removed
+    badgeApplicationMode: false, // Whether we're choosing a card to badge
+    currentBadge: null, // Badge to be applied
   };
 
   constructor() {
@@ -643,6 +655,90 @@ class GameStore {
       (c) => c.id !== consumable.id
     );
     return true;
+  }
+
+  startCardRemoval() {
+    if (this.state.pearls < this.state.removalCost) {
+      console.log("Not enough pearls!");
+      return;
+    }
+
+    // Draw 5 cards for removal options
+    const drawnCards = [];
+
+    // Try to draw from main deck first
+    while (drawnCards.length < 5 && this.state.mainDeck.length > 0) {
+      const randomIndex = Math.floor(
+        Math.random() * this.state.mainDeck.length
+      );
+      const card = this.state.mainDeck.splice(randomIndex, 1)[0];
+      drawnCards.push(card);
+    }
+
+    // If we need more cards, reshuffle discard and continue drawing
+    if (drawnCards.length < 5 && this.state.discardPile.length > 0) {
+      this.reshuffleDeckFromDiscard();
+
+      while (drawnCards.length < 5 && this.state.mainDeck.length > 0) {
+        const randomIndex = Math.floor(
+          Math.random() * this.state.mainDeck.length
+        );
+        const card = this.state.mainDeck.splice(randomIndex, 1)[0];
+        drawnCards.push(card);
+      }
+    }
+
+    this.state.cardRemovalOptions = drawnCards;
+  }
+
+  removeCard(cardId) {
+    // Deduct cost
+    this.state.pearls -= this.state.removalCost;
+
+    // Find and remove the selected card
+    const removedCardIndex = this.state.cardRemovalOptions.findIndex(
+      (c) => c.id === cardId
+    );
+    if (removedCardIndex === -1) return;
+
+    // Remove the card from options
+    this.state.cardRemovalOptions.splice(removedCardIndex, 1);
+
+    // Generate random badge
+    const badgeTypes = Object.values(BADGES);
+    this.state.currentBadge =
+      badgeTypes[Math.floor(Math.random() * badgeTypes.length)];
+
+    // Enter badge application mode
+    this.state.badgeApplicationMode = true;
+  }
+
+  applyBadge(cardId) {
+    if (!this.state.currentBadge || !this.state.badgeApplicationMode) return;
+
+    // Find the card to upgrade
+    const cardToUpgrade = this.state.cardRemovalOptions.find(
+      (c) => c.id === cardId
+    );
+    if (!cardToUpgrade) return;
+
+    // Initialize upgrades array if it doesn't exist
+    if (!cardToUpgrade.upgrades) {
+      cardToUpgrade.upgrades = [];
+    }
+
+    // Add the badge
+    cardToUpgrade.upgrades.push(this.state.currentBadge);
+
+    // Return remaining cards to deck
+    this.state.cardRemovalOptions.forEach((card) => {
+      this.state.mainDeck.push(card);
+    });
+
+    // Clear removal state
+    this.state.cardRemovalOptions = [];
+    this.state.currentBadge = null;
+    this.state.badgeApplicationMode = false;
   }
 }
 

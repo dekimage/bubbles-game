@@ -5,6 +5,7 @@ import { gameStore, RARITY } from "@/stores/gameStore";
 import Card from "./Card";
 import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
+import CardRemovalService from "./CardRemovalService";
 
 const ShopPhase = observer(() => {
   return (
@@ -139,6 +140,20 @@ const ShopPhase = observer(() => {
                   </Popover.Portal>
                 </Popover.Root>
               ))}
+            </div>
+          </div>
+
+          {/* Card Removal Service */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white">
+              Card Removal Service
+            </h3>
+            <div className="flex items-center gap-4">
+              <CardRemovalService />
+              <span className="text-slate-400">
+                Remove a card and upgrade another (Cost: 💎{" "}
+                {gameStore.state.removalCost})
+              </span>
             </div>
           </div>
         </div>
