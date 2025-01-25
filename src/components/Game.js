@@ -19,6 +19,8 @@ import ItemPopover from "./ItemPopover";
 import DeckViewer from "./DeckViewer";
 import BadgeAttachViewer from "./BadgeAttachViewer";
 import { RelicManager } from "@/managers/RelicManager";
+import GameOverDialog from "./GameOverDialog";
+import ResetButton from "./ResetButton";
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -158,8 +160,9 @@ const Game = observer(() => {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
+            <ResetButton />
           </div>
         </div>
 
@@ -180,7 +183,7 @@ const Game = observer(() => {
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
                       w-48 h-48 bg-blue-900/30 rounded-full flex flex-wrap justify-center items-center gap-2 p-4"
           >
-            {gameStore.state.enemySlots.map((_, index) => (
+            {gameStore.state.enemySlots?.map((_, index) => (
               <div
                 key={`enemy-${index}`}
                 className="w-16 h-16 bg-red-900/30 rounded-lg border border-red-500/30"
@@ -435,6 +438,7 @@ const Game = observer(() => {
       {gameStore.state.isShopPhase && <ShopPhase />}
       <DeckViewer />
       <BadgeAttachViewer />
+      <GameOverDialog />
     </>
   );
 });
