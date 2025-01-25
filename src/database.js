@@ -1,3 +1,26 @@
+// Card type constants
+export const CARD_TYPES = {
+  SEAFOLK: "seafolk",
+  MACHINE: "machine",
+  ECONOMY: "economy",
+  CONSUMABLE: "consumable",
+};
+
+// Suit emojis
+export const SUITS = {
+  CORAL: "🐠", // coral suit
+  SHELL: "🐚", // shell suit
+  WAVE: "🌊", // wave suit
+  STAR: "⭐", // star suit
+};
+
+// Add new constants
+export const RARITY = {
+  COMMON: "common",
+  UNCOMMON: "uncommon",
+  RARE: "rare",
+};
+
 export const RELICS = [
   // Water Value Boost Relics
   {

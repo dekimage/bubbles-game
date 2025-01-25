@@ -2,30 +2,14 @@ import { makeAutoObservable, action, runInAction } from "mobx";
 import { FaRedoAlt } from "react-icons/fa";
 import { EffectManager } from "@/managers/EffectManager";
 import { RelicManager } from "@/managers/RelicManager";
-import { BADGES, CONSUMABLES, RELICS, SHOP_DECK } from "@/database";
-
-// Card type constants
-const CARD_TYPES = {
-  SEAFOLK: "seafolk",
-  MACHINE: "machine",
-  ECONOMY: "economy",
-  CONSUMABLE: "consumable",
-};
-
-// Suit emojis
-const SUITS = {
-  CORAL: "🐠", // coral suit
-  SHELL: "🐚", // shell suit
-  WAVE: "🌊", // wave suit
-  STAR: "⭐", // star suit
-};
-
-// Add new constants
-export const RARITY = {
-  COMMON: "common",
-  UNCOMMON: "uncommon",
-  RARE: "rare",
-};
+import {
+  BADGES,
+  CARD_TYPES,
+  CONSUMABLES,
+  RELICS,
+  SHOP_DECK,
+  SUITS,
+} from "@/database";
 
 class GameStore {
   state = {
