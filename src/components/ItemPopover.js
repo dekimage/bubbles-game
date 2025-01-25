@@ -15,7 +15,9 @@ const ItemPopover = ({
     <div className="bg-slate-700 p-4 rounded-lg w-64">
       <div className="text-4xl mb-2">{item.emoji}</div>
       <div className="font-bold text-white">{item.name}</div>
-      <div className="text-sm text-slate-300 mb-2">{item.effect}</div>
+      <div className="text-sm text-slate-300 mb-2">
+        {item.description || item.effect}
+      </div>
       <div className="flex justify-between items-center mb-2">
         <div className={`text-xs ${getRarityColor(item.rarity)}`}>
           {item.rarity?.toUpperCase()}

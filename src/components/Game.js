@@ -18,6 +18,7 @@ import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
 import DeckViewer from "./DeckViewer";
 import BadgeAttachViewer from "./BadgeAttachViewer";
+import { RelicManager } from "@/managers/RelicManager";
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -67,31 +68,10 @@ const Game = observer(() => {
     );
   };
 
-  // Add debug function
-  const enterDebugShop = () => {
-    gameStore.state.pearls = 30;
-    gameStore.state.isShopPhase = true;
-    gameStore.drawShopCards();
-    gameStore.drawShopItems();
-  };
-
   return (
     <>
       {/* Main Game UI */}
       <div className="min-h-screen bg-slate-900 text-white p-4">
-        {/* Moved debug button more to the left */}
-        {process.env.NODE_ENV === "development" && (
-          <motion.button
-            className="fixed bottom-4 right-32 px-4 py-2 bg-red-600 hover:bg-red-500 
-                     rounded-lg font-bold text-white z-50 flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={enterDebugShop}
-          >
-            <span>🐞</span> Debug Shop
-          </motion.button>
-        )}
-
         {/* Header */}
         <div className="flex justify-between items-center mb-8 bg-slate-800 p-4 rounded-lg">
           <div className="flex gap-4">
@@ -140,16 +120,47 @@ const Game = observer(() => {
           <div>
             Round: {gameStore.state.round}/{gameStore.state.maxRounds}
           </div>
-          <div
-            className={`font-bold ${
-              gameStore.state.currentWater >= gameStore.state.currentGoal
-                ? "text-green-400"
-                : "text-white"
-            }`}
-          >
-            Water: {gameStore.state.currentWater}/{gameStore.state.currentGoal}
+
+          <div className="flex items-center gap-2">
+            <div
+              className={`font-bold ${
+                gameStore.state.currentWater >= gameStore.state.currentGoal
+                  ? "text-green-400"
+                  : "text-white"
+              }`}
+            >
+              Water: {gameStore.state.currentWater}/
+              {gameStore.state.currentGoal}
+            </div>
+            {process.env.NODE_ENV === "development" && (
+              <motion.button
+                className="px-2 py-1 bg-blue-600 rounded text-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => (gameStore.state.currentWater += 20)}
+              >
+                +20
+              </motion.button>
+            )}
           </div>
-          <div>Pearls: {gameStore.state.pearls}</div>
+
+          <div className="flex items-center gap-2">
+            <div>Pearls: {gameStore.state.pearls}</div>
+            {process.env.NODE_ENV === "development" && (
+              <motion.button
+                className="px-2 py-1 bg-yellow-600 rounded text-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => (gameStore.state.pearls += 20)}
+              >
+                +20
+              </motion.button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
+          </div>
         </div>
 
         {/* Update goal display */}
@@ -410,22 +421,17 @@ const Game = observer(() => {
             </div>
 
             {/* Next Round Button */}
-            <motion.button
-              className={`px-6 py-3 rounded-lg font-bold shadow-lg ml-4
-                        ${
-                          gameStore.canAdvanceRound()
-                            ? "bg-green-600 hover:bg-green-500"
-                            : "bg-gray-600 cursor-not-allowed opacity-50"
-                        }`}
-              whileHover={gameStore.canAdvanceRound() ? { scale: 1.05 } : {}}
-              whileTap={gameStore.canAdvanceRound() ? { scale: 0.95 } : {}}
-              onClick={() =>
-                gameStore.canAdvanceRound() && gameStore.nextRound()
-              }
+            <button
+              className={`px-6 py-2 ${
+                gameStore.canAdvanceRound()
+                  ? "bg-green-600 hover:bg-green-500"
+                  : "bg-gray-600 cursor-not-allowed"
+              } rounded-lg font-bold`}
+              onClick={() => gameStore.nextRound()}
               disabled={!gameStore.canAdvanceRound()}
             >
-              Next Round
-            </motion.button>
+              End Round
+            </button>
           </div>
         </div>
       </div>

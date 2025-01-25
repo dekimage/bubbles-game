@@ -1,6 +1,7 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, action, runInAction } from "mobx";
 import { FaRedoAlt } from "react-icons/fa";
 import { EffectManager } from "@/managers/EffectManager";
+import { RelicManager } from "@/managers/RelicManager";
 
 // Card type constants
 const CARD_TYPES = {
@@ -26,85 +27,127 @@ export const RARITY = {
 };
 
 const RELICS = [
+  // Water Value Boost Relics
   {
-    id: "coral-crown",
-    name: "Coral Crown",
-    emoji: "👑",
+    id: "starlight-crystal",
+    name: "Starlight Crystal",
+    emoji: "⭐💎",
     cost: 4,
-    rarity: RARITY.RARE,
-    effect: "All seafolk cards gain +1 water value",
-  },
-  {
-    id: "pearl-necklace",
-    name: "Pearl Necklace",
-    emoji: "📿",
-    cost: 3,
     rarity: RARITY.UNCOMMON,
-    effect: "Gain 1 pearl at the start of each round",
+    effects: {
+      waterBoost: 2,
+      suit: SUITS.STAR,
+    },
+    description: "Star cards gain +2 water value",
   },
   {
-    id: "ancient-compass",
-    name: "Ancient Compass",
-    emoji: "🧭",
-    cost: 2,
-    rarity: RARITY.COMMON,
-    effect: "See one extra card when drawing options",
-  },
-  {
-    id: "lucky-shell",
-    name: "Lucky Shell",
-    emoji: "🐚",
-    cost: 3,
+    id: "wave-stone",
+    name: "Wave Stone",
+    emoji: "🌊💎",
+    cost: 4,
     rarity: RARITY.UNCOMMON,
-    effect: "First reroll each round is free",
+    effects: {
+      waterBoost: 2,
+      suit: SUITS.WAVE,
+    },
+    description: "Wave cards gain +2 water value",
   },
+
+  // Multiplier Boost Relics
   {
-    id: "merfolk-charm",
-    name: "Merfolk Charm",
-    emoji: "🧜‍♀️",
+    id: "star-amplifier",
+    name: "Star Amplifier",
+    emoji: "⭐✨",
     cost: 5,
     rarity: RARITY.RARE,
-    effect: "Machine multipliers are 0.5 higher",
+    effects: {
+      multiplierBoost: 0.5,
+      suit: SUITS.STAR,
+    },
+    description: "Star multipliers give +0.5 extra",
   },
+
+  // Extra Draw Relics
   {
-    id: "tide-crystal",
-    name: "Tide Crystal",
-    emoji: "💎",
-    cost: 4,
+    id: "fortune-compass",
+    name: "Fortune Compass",
+    emoji: "🧭",
+    cost: 5,
     rarity: RARITY.RARE,
-    effect: "Shop rerolls cost 0 pearls",
+    effects: {
+      extraDraw: 1,
+    },
+    description: "See 1 extra card in your choices each turn",
   },
+
+  // Round Start Bonus Relics
   {
-    id: "merchants-scale",
-    name: "Merchant's Scale",
-    emoji: "⚖️",
-    cost: 3,
+    id: "pearl-crown",
+    name: "Pearl Crown",
+    emoji: "👑",
+    cost: 4,
     rarity: RARITY.UNCOMMON,
-    effect: "All shop items cost 1 less pearl (minimum 1)",
+    effects: {
+      roundStartPearls: 1,
+    },
+    description: "Gain +1 pearl at the start of each round",
   },
   {
-    id: "coral-dice",
-    name: "Coral Dice",
+    id: "water-chalice",
+    name: "Water Chalice",
+    emoji: "🏺",
+    cost: 4,
+    rarity: RARITY.UNCOMMON,
+    effects: {
+      roundStartWater: 2,
+    },
+    description: "Start each round with +2 water",
+  },
+  {
+    id: "lucky-dice",
+    name: "Lucky Dice",
     emoji: "🎲",
     cost: 4,
-    rarity: RARITY.RARE,
-    effect: "Each reroll has a 25% chance to be free",
-  },
-  {
-    id: "barnacle-charm",
-    name: "Barnacle Charm",
-    emoji: "🪸",
-    cost: 3,
     rarity: RARITY.UNCOMMON,
-    effect: "Empty slot pearl bonus is increased by 1",
+    effects: {
+      roundStartRerolls: 1,
+    },
+    description: "Gain +1 reroll at the start of each round",
+  },
+
+  // Cost Reduction Relics
+  {
+    id: "merchants-pendant",
+    name: "Merchant's Pendant",
+    emoji: "📿",
+    cost: 4,
+    rarity: RARITY.UNCOMMON,
+    effects: {
+      shopCardDiscount: 1,
+    },
+    description: "Cards in the shop cost 1 pearl less",
   },
   {
-    id: "abyssal-lens",
-    name: "Abyssal Lens",
-    emoji: "🔍",
-    cost: 2,
-    rarity: RARITY.COMMON,
-    effect: "See the next card in your deck",
+    id: "ancient-coin",
+    name: "Ancient Coin",
+    emoji: "🪙",
+    cost: 5,
+    rarity: RARITY.RARE,
+    effects: {
+      relicDiscount: 1,
+    },
+    description: "Relics cost 1 pearl less",
+  },
+  {
+    id: "discount-charm",
+    name: "Discount Charm",
+    emoji: "🔮",
+    cost: 4,
+    rarity: RARITY.UNCOMMON,
+    effects: {
+      consumableDiscount: 1,
+    },
+    description: "Consumables cost 1 pearl less",
   },
 ];
 
@@ -583,14 +626,14 @@ class GameStore {
     return newArray;
   }
 
-  calculateWater() {
+  calculateWater = action("calculateWater", () => {
     const waterBySuit = {};
     const multipliersBySuit = {};
 
     // Initialize water and multipliers for each suit
     Object.keys(SUITS).forEach((suit) => {
       waterBySuit[suit] = 0;
-      multipliersBySuit[suit] = 0; // Start with 0 additional percentage
+      multipliersBySuit[suit] = 0;
     });
 
     // First pass: collect base values and multipliers
@@ -598,10 +641,60 @@ class GameStore {
       if (!card) return;
 
       if (card.type === CARD_TYPES.SEAFOLK) {
-        waterBySuit[card.suit] += card.waterValue;
+        let baseValue = card.waterValue;
+
+        // Check for suit-specific relics
+        this.state.relics.forEach((relic) => {
+          if (relic.id === "starlight-crystal" && card.suit === "STAR") {
+            baseValue += 2;
+          }
+          if (relic.id === "coral-crown" && card.suit === "CORAL") {
+            baseValue += 2;
+          }
+          if (relic.id === "wave-pendant" && card.suit === "WAVE") {
+            baseValue += 2;
+          }
+          if (relic.id === "shell-charm" && card.suit === "SHELL") {
+            baseValue += 2;
+          }
+        });
+
+        waterBySuit[card.suit] += baseValue;
+        console.log(
+          `${card.suit} card base value: ${card.waterValue}, after relics: ${baseValue}`
+        );
       } else if (card.type === CARD_TYPES.MACHINE) {
-        // Add percentage increases (1.5 means +50%, 2.0 means +100%, etc.)
-        multipliersBySuit[card.suit] += card.multiplier - 1;
+        let multiplierBonus = card.multiplier - 1; // Convert 2.0 to 1.0 for percentage
+
+        // Check for suit-specific multiplier relics
+        this.state.relics.forEach((relic) => {
+          if (relic.id === "star-amplifier" && card.suit === "STAR") {
+            multiplierBonus += 0.5;
+            console.log(
+              `Star Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
+            );
+          }
+          if (relic.id === "wave-amplifier" && card.suit === "WAVE") {
+            multiplierBonus += 0.5;
+            console.log(
+              `Wave Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
+            );
+          }
+          if (relic.id === "coral-amplifier" && card.suit === "CORAL") {
+            multiplierBonus += 0.5;
+            console.log(
+              `Coral Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
+            );
+          }
+          if (relic.id === "shell-amplifier" && card.suit === "SHELL") {
+            multiplierBonus += 0.5;
+            console.log(
+              `Shell Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
+            );
+          }
+        });
+
+        multipliersBySuit[card.suit] += multiplierBonus;
       }
     });
 
@@ -613,14 +706,15 @@ class GameStore {
       const suitWater = baseWater * (1 + multiplierPercentage);
       totalWater += suitWater;
 
-      // For debugging
       console.log(
         `${suit}: ${baseWater} water × (1 + ${multiplierPercentage}) = ${suitWater}`
       );
     });
 
-    this.state.currentWater = Math.floor(totalWater);
-  }
+    runInAction(() => {
+      this.state.currentWater = Math.floor(totalWater);
+    });
+  });
 
   selectSlot(index) {
     // If we already have displayed cards, don't allow selecting a new slot
@@ -633,10 +727,14 @@ class GameStore {
   drawDisplayCards() {
     if (this.state.selectedSlotIndex === null) return;
 
-    const cardsNeeded = 3;
+    // Get base number of cards plus any extras from relics
+    const baseCards = 3;
+    const extraCards = RelicManager.getExtraDrawCount();
+    const cardsNeeded = baseCards + extraCards;
+
     const drawnCards = [];
 
-    // First, try to draw as many cards as we can from current deck
+    // Draw cards logic remains the same, just with modified cardsNeeded
     while (drawnCards.length < cardsNeeded && this.state.mainDeck.length > 0) {
       const randomIndex = Math.floor(
         Math.random() * this.state.mainDeck.length
@@ -645,12 +743,8 @@ class GameStore {
       drawnCards.push(drawnCard);
     }
 
-    // If we still need cards and have cards in discard
     if (drawnCards.length < cardsNeeded && this.state.discardPile.length > 0) {
-      // Reshuffle discard into deck
       this.reshuffleDeckFromDiscard();
-
-      // Draw remaining needed cards
       while (
         drawnCards.length < cardsNeeded &&
         this.state.mainDeck.length > 0
@@ -754,15 +848,22 @@ class GameStore {
     }
   }
 
+  getBaseRerolls() {
+    let baseRerolls = 5;
+
+    // Add permanent reroll bonuses from relics
+    this.state.relics.forEach((relic) => {
+      if (relic.effects?.roundStartRerolls) {
+        baseRerolls += relic.effects.roundStartRerolls;
+      }
+    });
+
+    return baseRerolls;
+  }
+
+  // This is called when clicking "End Round" button in the main game
   nextRound() {
     if (this.canAdvanceRound()) {
-      this.state.round += 1;
-
-      // Set the original goal based on the pre-calculated array
-      this.state.originalGoal = this.baseGoals[this.state.round - 1];
-      // Reset current goal to match original goal for the new round
-      this.state.currentGoal = this.baseGoals[this.state.round - 1];
-
       // Count empty slots and award bonus pearls
       const emptySlots = this.state.boardSlots.filter(
         (slot) => slot === null
@@ -776,21 +877,50 @@ class GameStore {
         );
       }
 
-      // Move all played cards to discard pile
-      this.state.boardSlots.forEach((card) => {
-        if (card) {
-          this.state.discardPile.push(card);
-        }
-      });
+      // Reset water to 0 first
+      this.state.currentWater = 0;
 
-      // Clear the board
-      this.state.boardSlots = Array(10).fill(null);
-
-      // Enter shop phase and draw initial shop cards
+      // Enter shop phase and draw all shop items
       this.state.isShopPhase = true;
       this.drawShopCards();
       this.drawShopItems();
+      this.drawShopRelics();
     }
+  }
+
+  // This is called when clicking "Next Round" button in the shop phase
+  endShopPhase() {
+    // First do the regular shop cleanup
+    this.finishShopping();
+
+    // Then apply relic effects
+    runInAction(() => {
+      this.state.relics.forEach((relic) => {
+        if (relic.effects?.roundStartRerolls) {
+          const bonus = relic.effects.roundStartRerolls;
+          this.state.rerollsRemaining += bonus;
+          console.log(
+            `Added ${bonus} rerolls. New total: ${this.state.rerollsRemaining}`
+          );
+        }
+
+        if (relic.effects?.roundStartWater) {
+          const bonus = relic.effects.roundStartWater;
+          this.state.currentWater += bonus;
+          console.log(
+            `Added ${bonus} water. New total: ${this.state.currentWater}`
+          );
+        }
+
+        if (relic.effects?.roundStartPearls) {
+          const bonus = relic.effects.roundStartPearls;
+          this.state.pearls += bonus;
+          console.log(`Added ${bonus} pearls. New total: ${this.state.pearls}`);
+        }
+
+        this.saveGame();
+      });
+    });
   }
 
   canAdvanceRound() {
@@ -841,22 +971,34 @@ class GameStore {
 
   // Add method to finish shopping and start next round
   finishShopping() {
-    // Clear shop state
-    this.state.shopDisplayedCards = [];
-    this.state.isShopPhase = false;
+    runInAction(() => {
+      // Move all board cards to discard pile
+      this.state.boardSlots.forEach((card) => {
+        if (card) {
+          this.state.discardPile.push(card);
+        }
+      });
 
-    // Update round and water goal
-    this.state.round += 1;
-    this.state.currentGoal += this.state.waterGoalIncrement;
+      // Clear board slots
+      this.state.boardSlots = Array(10).fill(null);
 
-    // Reset current water
-    this.state.currentWater = 0;
+      // Clear shop state
+      this.state.shopDisplayedCards = [];
+      this.state.isShopPhase = false;
 
-    // Reset rerolls
-    this.state.rerollsRemaining = 5;
+      // Update round and water goal
+      this.state.round += 1;
+      this.state.currentGoal += this.state.waterGoalIncrement;
 
-    // Save game state
-    this.saveGame();
+      // Reset current water
+      this.state.currentWater = 0;
+
+      // Reset rerolls
+      this.state.rerollsRemaining = 5;
+
+      // Save game state
+      this.saveGame();
+    });
   }
 
   rerollShopCards() {
@@ -880,21 +1022,19 @@ class GameStore {
   }
 
   buyShopCard(card) {
-    if (this.state.pearls < card.cost) {
+    const finalCost = RelicManager.getFinalCost("shopCard", card.cost);
+
+    if (this.state.pearls < finalCost) {
       console.log("Not enough pearls!");
-      return;
+      return false;
     }
 
-    // Deduct cost
-    this.state.pearls -= card.cost;
-
-    // Add card to discard pile
+    this.state.pearls -= finalCost;
     this.state.discardPile.push(card);
-
-    // Remove only the purchased card from displayed cards
     this.state.shopDisplayedCards = this.state.shopDisplayedCards.filter(
       (c) => c.id !== card.id
     );
+    return true;
   }
 
   reshuffleDeckFromDiscard() {
@@ -922,7 +1062,9 @@ class GameStore {
   }
 
   buyRelic(relic) {
-    if (this.state.pearls < relic.cost) {
+    const finalCost = RelicManager.getFinalCost("relic", relic.cost);
+
+    if (this.state.pearls < finalCost) {
       console.log("Not enough pearls!");
       return false;
     }
@@ -931,16 +1073,42 @@ class GameStore {
       return false;
     }
 
-    this.state.pearls -= relic.cost;
+    this.state.pearls -= finalCost;
     this.state.relics.push(relic);
     this.state.shopRelics = this.state.shopRelics.filter(
       (r) => r.id !== relic.id
     );
+
+    // Immediately apply effects
+    if (relic.effects?.roundStartRerolls) {
+      const bonus = relic.effects.roundStartRerolls;
+      this.state.rerollsRemaining += bonus;
+      console.log(
+        `Added ${bonus} rerolls. New total: ${this.state.rerollsRemaining}`
+      );
+    }
+
+    if (relic.effects?.roundStartWater) {
+      const bonus = relic.effects.roundStartWater;
+      this.state.currentWater += bonus;
+      console.log(
+        `Added ${bonus} water. New total: ${this.state.currentWater}`
+      );
+    }
+
+    if (relic.effects?.roundStartPearls) {
+      const bonus = relic.effects.roundStartPearls;
+      this.state.pearls += bonus;
+      console.log(`Added ${bonus} pearls. New total: ${this.state.pearls}`);
+    }
+
     return true;
   }
 
   buyConsumable(consumable) {
-    if (this.state.pearls < consumable.cost) {
+    const finalCost = RelicManager.getFinalCost("consumable", consumable.cost);
+
+    if (this.state.pearls < finalCost) {
       console.log("Not enough pearls!");
       return false;
     }
@@ -949,7 +1117,7 @@ class GameStore {
       return false;
     }
 
-    this.state.pearls -= consumable.cost;
+    this.state.pearls -= finalCost;
     this.state.consumables.push(consumable);
     this.state.shopConsumables = this.state.shopConsumables.filter(
       (c) => c.id !== consumable.id
@@ -1098,6 +1266,19 @@ class GameStore {
     console.log(
       `Goal reduced by ${amount}. Current goal: ${this.state.currentGoal} (Original: ${this.state.originalGoal})`
     );
+  }
+
+  drawShopRelics() {
+    // Draw 3 random relics for the shop
+    const availableRelics = [...RELICS];
+    this.state.shopRelics = [];
+
+    for (let i = 0; i < 3; i++) {
+      if (availableRelics.length === 0) break;
+      const randomIndex = Math.floor(Math.random() * availableRelics.length);
+      const relic = availableRelics.splice(randomIndex, 1)[0];
+      this.state.shopRelics.push(relic);
+    }
   }
 }
 

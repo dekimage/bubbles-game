@@ -6,8 +6,27 @@ import Card from "./Card";
 import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
 import CardRemovalService from "./CardRemovalService";
+import { RelicManager } from "@/managers/RelicManager";
 
 const ShopPhase = observer(() => {
+  const renderPrice = (item, type) => {
+    const basePrice = item.cost;
+    const finalPrice = RelicManager.getFinalCost(type, basePrice);
+
+    if (finalPrice < basePrice) {
+      return (
+        <div className="text-yellow-400">
+          <span className="line-through text-gray-400 mr-2">
+            💎 {basePrice}
+          </span>
+          💎 {finalPrice}
+        </div>
+      );
+    }
+
+    return <div className="text-yellow-400">💎 {basePrice}</div>;
+  };
+
   return (
     <div className="fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center p-8">
       <div className="bg-slate-800 rounded-lg p-8 max-w-4xl w-full h-full overflow-y-auto">
@@ -23,7 +42,7 @@ const ShopPhase = observer(() => {
                 className="px-6 py-3 rounded-lg font-bold bg-green-600 hover:bg-green-500"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => gameStore.finishShopping()}
+                onClick={() => gameStore.endShopPhase()}
               >
                 Next Round
               </motion.button>
@@ -97,7 +116,7 @@ const ShopPhase = observer(() => {
                                         : "text-red-400"
                                     }`}
                       >
-                        💎 {card.cost}
+                        {renderPrice(card, "shopCard")}
                       </div>
                       <motion.button
                         className={`px-4 py-1 rounded-lg font-bold text-sm
@@ -168,7 +187,7 @@ const ShopPhase = observer(() => {
                                     : "text-red-400"
                                 }`}
                   >
-                    💎 {relic.cost}
+                    {renderPrice(relic, "relic")}
                   </div>
                   <motion.button
                     className={`px-4 py-1 rounded-lg font-bold text-sm
@@ -233,7 +252,7 @@ const ShopPhase = observer(() => {
                                     : "text-red-400"
                                 }`}
                   >
-                    💎 {consumable.cost}
+                    {renderPrice(consumable, "consumable")}
                   </div>
                   <motion.button
                     className={`px-4 py-1 rounded-lg font-bold text-sm
