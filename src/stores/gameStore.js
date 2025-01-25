@@ -308,6 +308,57 @@ const CONSUMABLES = [
     rarity: RARITY.RARE,
     effect: "Reduces current water goal by 15",
   },
+  // Direct Water Addition Consumables
+  {
+    id: "minor-water-boost",
+    name: "Minor Water Boost",
+    emoji: "💧",
+    cost: 2,
+    rarity: RARITY.COMMON,
+    effect: "Add 5 water to current total",
+  },
+  {
+    id: "water-surge",
+    name: "Water Surge",
+    emoji: "🌊",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "Add 3-12 water to current total (random)",
+  },
+  {
+    id: "major-water-boost",
+    name: "Major Water Boost",
+    emoji: "🌊💧",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "Add 5-15 water to current total (random)",
+  },
+
+  // Reroll Addition Consumables
+  {
+    id: "minor-reroll-boost",
+    name: "Minor Reroll Boost",
+    emoji: "🎲",
+    cost: 2,
+    rarity: RARITY.COMMON,
+    effect: "Add 3 rerolls",
+  },
+  {
+    id: "reroll-surge",
+    name: "Reroll Surge",
+    emoji: "🎲🎯",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "Add 2-5 rerolls (random)",
+  },
+  {
+    id: "major-reroll-boost",
+    name: "Major Reroll Boost",
+    emoji: "🎲✨",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "Add 4-7 rerolls (random)",
+  },
 ];
 
 export const BADGES = {

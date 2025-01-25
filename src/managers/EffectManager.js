@@ -105,6 +105,32 @@ export class EffectManager {
     const reduction = Math.floor(Math.random() * (max - min + 1)) + min;
     return await this.reduceGoal(reduction);
   }
+
+  static async addWater(amount) {
+    gameStore.state.currentWater += amount;
+    console.log(
+      `Added ${amount} water. New total: ${gameStore.state.currentWater}`
+    );
+    return true;
+  }
+
+  static async addRandomWater(min, max) {
+    const amount = Math.floor(Math.random() * (max - min + 1)) + min;
+    return await this.addWater(amount);
+  }
+
+  static async addRerolls(amount) {
+    gameStore.state.rerollsRemaining += amount;
+    console.log(
+      `Added ${amount} rerolls. Remaining: ${gameStore.state.rerollsRemaining}`
+    );
+    return true;
+  }
+
+  static async addRandomRerolls(min, max) {
+    const amount = Math.floor(Math.random() * (max - min + 1)) + min;
+    return await this.addRerolls(amount);
+  }
 }
 
 // Helper function to create badge attachment effects
@@ -160,6 +186,28 @@ const CONSUMABLE_EFFECTS = {
 
   "major-goal-reduction": async () => {
     return await EffectManager.reduceGoal(15);
+  },
+
+  // Water Effects
+  "minor-water-boost": async () => {
+    return await EffectManager.addWater(5);
+  },
+  "water-surge": async () => {
+    return await EffectManager.addRandomWater(3, 12);
+  },
+  "major-water-boost": async () => {
+    return await EffectManager.addRandomWater(5, 15);
+  },
+
+  // Reroll Effects
+  "minor-reroll-boost": async () => {
+    return await EffectManager.addRerolls(3);
+  },
+  "reroll-surge": async () => {
+    return await EffectManager.addRandomRerolls(2, 5);
+  },
+  "major-reroll-boost": async () => {
+    return await EffectManager.addRandomRerolls(4, 7);
   },
 
   // Add more consumable effects here
