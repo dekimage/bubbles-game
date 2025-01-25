@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { FaRedoAlt } from "react-icons/fa";
+import { EffectManager } from "@/managers/EffectManager";
 
 // Card type constants
 const CARD_TYPES = {
@@ -65,56 +66,275 @@ const RELICS = [
     rarity: RARITY.RARE,
     effect: "Machine multipliers are 0.5 higher",
   },
+  {
+    id: "tide-crystal",
+    name: "Tide Crystal",
+    emoji: "💎",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "Shop rerolls cost 0 pearls",
+  },
+  {
+    id: "merchants-scale",
+    name: "Merchant's Scale",
+    emoji: "⚖️",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "All shop items cost 1 less pearl (minimum 1)",
+  },
+  {
+    id: "coral-dice",
+    name: "Coral Dice",
+    emoji: "🎲",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect: "Each reroll has a 25% chance to be free",
+  },
+  {
+    id: "barnacle-charm",
+    name: "Barnacle Charm",
+    emoji: "🪸",
+    cost: 3,
+    rarity: RARITY.UNCOMMON,
+    effect: "Empty slot pearl bonus is increased by 1",
+  },
+  {
+    id: "abyssal-lens",
+    name: "Abyssal Lens",
+    emoji: "🔍",
+    cost: 2,
+    rarity: RARITY.COMMON,
+    effect: "See the next card in your deck",
+  },
 ];
 
 const CONSUMABLES = [
+  //   {
+  //     id: "water-potion",
+  //     name: "Water Potion",
+  //     emoji: "🧪",
+  //     cost: 2,
+  //     rarity: RARITY.COMMON,
+  //     effect: "Add 3 water to current total",
+  //   },
+  //   {
+  //     id: "pearl-dust",
+  //     name: "Pearl Dust",
+  //     emoji: "✨",
+  //     cost: 1,
+  //     rarity: RARITY.COMMON,
+  //     effect: "Gain 2 pearls immediately",
+  //   },
+  //   {
+  //     id: "whirlpool",
+  //     name: "Whirlpool",
+  //     emoji: "🌀",
+  //     cost: 3,
+  //     rarity: RARITY.UNCOMMON,
+  //     effect: "Reshuffle all cards back into deck",
+  //   },
+  //   {
+  //     id: "treasure-map",
+  //     name: "Treasure Map",
+  //     emoji: "🗺️",
+  //     cost: 4,
+  //     rarity: RARITY.RARE,
+  //     effect: "Choose any card from the deck",
+  //   },
+  //   {
+  //     id: "mystic-conch",
+  //     name: "Mystic Conch",
+  //     emoji: "🐚",
+  //     cost: 2,
+  //     rarity: RARITY.UNCOMMON,
+  //     effect: "Next card played costs no rerolls",
+  //   },
+  //   {
+  //     id: "coral-polish",
+  //     name: "Coral Polish",
+  //     emoji: "✨",
+  //     cost: 3,
+  //     rarity: RARITY.UNCOMMON,
+  //     effect: "Upgrade a random card in your hand with a badge",
+  //   },
+  //   {
+  //     id: "merchants-pearl",
+  //     name: "Merchant's Pearl",
+  //     emoji: "🔮",
+  //     cost: 2,
+  //     rarity: RARITY.COMMON,
+  //     effect: "Next shop purchase is 2 pearls cheaper",
+  //   },
+  //   {
+  //     id: "tide-scroll",
+  //     name: "Tide Scroll",
+  //     emoji: "📜",
+  //     cost: 3,
+  //     rarity: RARITY.UNCOMMON,
+  //     // effect: "Draw 3 cards, keep 1, others go to discard",
+  //   },
+  //   {
+  //     id: "kraken-ink",
+  //     name: "Kraken Ink",
+  //     emoji: "🦑",
+  //     cost: 4,
+  //     rarity: RARITY.RARE,
+  //     effect: "Double the water value of next played card",
+  //   },
+  //   {
+  //     id: "bubble-shield",
+  //     name: "Bubble Shield",
+  //     emoji: "🫧",
+  //     cost: 2,
+  //     rarity: RARITY.COMMON,
+  //     // effect: "Prevent water value from decreasing this round",
+  //   },
   {
-    id: "water-potion",
-    name: "Water Potion",
-    emoji: "🧪",
-    cost: 2,
-    rarity: RARITY.COMMON,
-    effect: "Add 3 water to current total",
-  },
-  {
-    id: "pearl-dust",
-    name: "Pearl Dust",
-    emoji: "✨",
-    cost: 1,
-    rarity: RARITY.COMMON,
-    effect: "Gain 2 pearls immediately",
-  },
-  {
-    id: "whirlpool",
-    name: "Whirlpool",
-    emoji: "🌀",
+    id: "chaos-whirlpool",
+    name: "Chaos Whirlpool",
+    emoji: "🌪️",
     cost: 3,
     rarity: RARITY.UNCOMMON,
-    effect: "Reshuffle all cards back into deck",
+    effect: "Randomly discard 8 cards from your deck",
   },
   {
-    id: "treasure-map",
-    name: "Treasure Map",
-    emoji: "🗺️",
+    id: "strategic-discard",
+    name: "Strategic Discard",
+    emoji: "🎯",
     cost: 4,
     rarity: RARITY.RARE,
-    effect: "Choose any card from the deck",
+    effect: "Choose 3 cards from your deck to discard",
   },
   {
-    id: "mystic-conch",
-    name: "Mystic Conch",
-    emoji: "🐚",
-    cost: 2,
+    id: "power-badge-consumable",
+    name: "Power Badge",
+    emoji: "🔴",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Power Badge to a selected card on the board (+1 to value)",
+    badgeType: "RED",
+  },
+  {
+    id: "water-badge-consumable",
+    name: "Water Badge",
+    emoji: "🔵",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Water Badge to a selected card on the board (adds water synergy)",
+    badgeType: "BLUE",
+  },
+  {
+    id: "pearl-badge-consumable",
+    name: "Pearl Badge",
+    emoji: "🟡",
+    cost: 4,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Pearl Badge to a selected card on the board (generates 1 pearl when played)",
+    badgeType: "YELLOW",
+  },
+  {
+    id: "magic-badge-consumable",
+    name: "Magic Badge",
+    emoji: "🟣",
+    cost: 5,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Magic Badge to a selected card on the board (doubles card effect)",
+    badgeType: "PURPLE",
+  },
+  {
+    id: "power-badge-deck-consumable",
+    name: "Power Badge (Deck)",
+    emoji: "🎴🔴",
+    cost: 3,
+    rarity: RARITY.RARE,
+    effect: "Attach a Power Badge to a random card in your deck (+1 to value)",
+    badgeType: "RED",
+  },
+  {
+    id: "water-badge-deck-consumable",
+    name: "Water Badge (Deck)",
+    emoji: "🎴🔵",
+    cost: 3,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Water Badge to a random card in your deck (adds water synergy)",
+    badgeType: "BLUE",
+  },
+  {
+    id: "pearl-badge-deck-consumable",
+    name: "Pearl Badge (Deck)",
+    emoji: "🎴🟡",
+    cost: 3,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Pearl Badge to a random card in your deck (generates 1 pearl when played)",
+    badgeType: "YELLOW",
+  },
+  {
+    id: "magic-badge-deck-consumable",
+    name: "Magic Badge (Deck)",
+    emoji: "🎴🟣",
+    cost: 3,
+    rarity: RARITY.RARE,
+    effect:
+      "Attach a Magic Badge to a random card in your deck (doubles card effect)",
+    badgeType: "PURPLE",
+  },
+  {
+    id: "minor-goal-reduction",
+    name: "Minor Goal Reduction",
+    emoji: "📉",
+    cost: 3,
+    rarity: RARITY.COMMON,
+    effect: "Reduces current water goal by 5",
+  },
+  {
+    id: "random-goal-reduction",
+    name: "Chaotic Goal Reduction",
+    emoji: "🎲",
+    cost: 4,
     rarity: RARITY.UNCOMMON,
-    effect: "Next card played costs no rerolls",
+    effect: "Reduces current water goal by 2-10 (random)",
+  },
+  {
+    id: "major-goal-reduction",
+    name: "Major Goal Reduction",
+    emoji: "📊",
+    cost: 6,
+    rarity: RARITY.RARE,
+    effect: "Reduces current water goal by 15",
   },
 ];
 
-const BADGES = {
-  RED: { type: "red", emoji: "🔴", name: "Power Badge" },
-  BLUE: { type: "blue", emoji: "🔵", name: "Water Badge" },
-  YELLOW: { type: "yellow", emoji: "🟡", name: "Pearl Badge" },
-  PURPLE: { type: "purple", emoji: "🟣", name: "Magic Badge" },
+export const BADGES = {
+  RED: {
+    type: "red",
+    emoji: "🔴",
+    name: "Power Badge",
+    description: "Increases card value by 1",
+  },
+  BLUE: {
+    type: "blue",
+    emoji: "🔵",
+    name: "Water Badge",
+    description: "Adds water synergy",
+  },
+  YELLOW: {
+    type: "yellow",
+    emoji: "🟡",
+    name: "Pearl Badge",
+    description: "Generates 1 pearl when played",
+  },
+  PURPLE: {
+    type: "purple",
+    emoji: "🟣",
+    name: "Magic Badge",
+    description: "Doubles card effect",
+  },
 };
 
 class GameStore {
@@ -122,7 +342,8 @@ class GameStore {
     round: 1,
     maxRounds: 12,
     currentWater: 0,
-    waterGoal: 20,
+    originalGoal: 20, // Starting goal
+    currentGoal: 20, // Current (possibly reduced) goal
     pearls: 0,
     mainDeck: [],
     discardPile: [],
@@ -142,19 +363,35 @@ class GameStore {
     consumables: [], // Owned consumables
     shopRelics: [], // Currently displayed relics in shop
     shopConsumables: [], // Currently displayed consumables in shop
-    maxRelics: 3, // Maximum relics that can be held
-    maxConsumables: 4, // Maximum consumables that can be held
+    maxRelics: 5, // Updated from 3 to 5
+    maxConsumables: 5, // Updated from 4 to 5
     removalCost: 3, // Cost in pearls for removal service
     cardRemovalOptions: [], // Cards shown for removal
     selectedCardForRemoval: null, // Card selected to be removed
     badgeApplicationMode: false, // Whether we're choosing a card to badge
     currentBadge: null, // Badge to be applied
     shopRerollCost: 1, // Always costs 1 pearl to reroll in shop
+    selectedBoardCard: null,
+    deckViewerMode: null, // 'discard' | null
+    maxSelectableCards: 0,
+    selectedCardsForDiscard: [],
+    onDeckViewerClose: null,
+    badgeAttachMode: null,
+    selectedCardForBadge: null,
+    currentBadgeType: null,
+    onBadgeAttachClose: null,
+    randomCardsForBadge: [],
   };
 
   constructor() {
     makeAutoObservable(this);
     this.initializeDecks();
+    // Initialize the goals array when the game starts
+    this.baseGoals = Array(this.state.maxRounds)
+      .fill(0)
+      .map((_, index) => {
+        return 20 + index * 5; // 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+      });
   }
 
   initializeDecks() {
@@ -467,39 +704,46 @@ class GameStore {
   }
 
   nextRound() {
-    if (!this.canAdvanceRound()) return;
+    if (this.canAdvanceRound()) {
+      this.state.round += 1;
 
-    // Count empty slots and award bonus pearls
-    const emptySlots = this.state.boardSlots.filter(
-      (slot) => slot === null
-    ).length;
-    const pearlBonus = emptySlots * 2;
+      // Set the original goal based on the pre-calculated array
+      this.state.originalGoal = this.baseGoals[this.state.round - 1];
+      // Reset current goal to match original goal for the new round
+      this.state.currentGoal = this.baseGoals[this.state.round - 1];
 
-    if (pearlBonus > 0) {
-      this.state.pearls += pearlBonus;
-      console.log(
-        `Bonus pearls for efficiency: +${pearlBonus} 💎 (${emptySlots} empty slots)`
-      );
-    }
+      // Count empty slots and award bonus pearls
+      const emptySlots = this.state.boardSlots.filter(
+        (slot) => slot === null
+      ).length;
+      const pearlBonus = emptySlots * 2;
 
-    // Move all played cards to discard pile
-    this.state.boardSlots.forEach((card) => {
-      if (card) {
-        this.state.discardPile.push(card);
+      if (pearlBonus > 0) {
+        this.state.pearls += pearlBonus;
+        console.log(
+          `Bonus pearls for efficiency: +${pearlBonus} 💎 (${emptySlots} empty slots)`
+        );
       }
-    });
 
-    // Clear the board
-    this.state.boardSlots = Array(10).fill(null);
+      // Move all played cards to discard pile
+      this.state.boardSlots.forEach((card) => {
+        if (card) {
+          this.state.discardPile.push(card);
+        }
+      });
 
-    // Enter shop phase and draw initial shop cards
-    this.state.isShopPhase = true;
-    this.drawShopCards();
-    this.drawShopItems();
+      // Clear the board
+      this.state.boardSlots = Array(10).fill(null);
+
+      // Enter shop phase and draw initial shop cards
+      this.state.isShopPhase = true;
+      this.drawShopCards();
+      this.drawShopItems();
+    }
   }
 
   canAdvanceRound() {
-    return this.state.currentWater >= this.state.waterGoal;
+    return this.state.currentWater >= this.state.currentGoal;
   }
 
   rerollCards() {
@@ -552,7 +796,7 @@ class GameStore {
 
     // Update round and water goal
     this.state.round += 1;
-    this.state.waterGoal += this.state.waterGoalIncrement;
+    this.state.currentGoal += this.state.waterGoalIncrement;
 
     // Reset current water
     this.state.currentWater = 0;
@@ -612,17 +856,18 @@ class GameStore {
   }
 
   drawShopItems() {
-    // Draw 3 random relics
-    const availableRelics = RELICS.filter(
-      (r) => !this.state.relics.find((owned) => owned.id === r.id)
-    );
-    this.state.shopRelics = this.shuffleArray([...availableRelics]).slice(0, 3);
+    // Draw 3 random consumables for the shop
+    const availableConsumables = [...CONSUMABLES];
+    this.state.shopConsumables = [];
 
-    // Draw 3 random consumables
-    const availableConsumables = CONSUMABLES;
-    this.state.shopConsumables = this.shuffleArray([
-      ...availableConsumables,
-    ]).slice(0, 3);
+    for (let i = 0; i < 3; i++) {
+      if (availableConsumables.length === 0) break;
+      const randomIndex = Math.floor(
+        Math.random() * availableConsumables.length
+      );
+      const consumable = availableConsumables.splice(randomIndex, 1)[0];
+      this.state.shopConsumables.push(consumable);
+    }
   }
 
   buyRelic(relic) {
@@ -743,6 +988,65 @@ class GameStore {
     this.state.cardRemovalOptions = [];
     this.state.currentBadge = null;
     this.state.badgeApplicationMode = false;
+  }
+
+  selectBoardCard(index) {
+    const card = this.state.boardSlots[index];
+    if (!card) return;
+
+    // Toggle selection
+    if (this.state.selectedBoardCard === card) {
+      this.state.selectedBoardCard = null;
+    } else {
+      this.state.selectedBoardCard = card;
+    }
+  }
+
+  async useConsumable(consumable) {
+    const success = await EffectManager.handleConsumableEffect(
+      consumable,
+      this.state.selectedBoardCard
+    );
+
+    if (success) {
+      // Clear selection after successful use
+      this.state.selectedBoardCard = null;
+    }
+  }
+
+  removeConsumable(consumableId) {
+    this.state.consumables = this.state.consumables.filter(
+      (c) => c.id !== consumableId
+    );
+  }
+
+  // Add helper method to get random cards
+  getRandomCardsFromDeck(count) {
+    const deck = [...this.state.mainDeck];
+    const result = [];
+    const maxCount = Math.min(count, deck.length);
+
+    for (let i = 0; i < maxCount; i++) {
+      const randomIndex = Math.floor(Math.random() * deck.length);
+      result.push(deck.splice(randomIndex, 1)[0]);
+    }
+
+    return result;
+  }
+
+  // Update goal setting to use both values
+  setNextGoal() {
+    this.state.originalGoal += 5;
+    this.state.currentGoal = this.state.originalGoal;
+  }
+
+  // Add method to reduce current goal
+  reduceCurrentGoal(amount) {
+    // Only reduce the current goal, never affecting the original
+    this.state.currentGoal = Math.max(1, this.state.currentGoal - amount);
+    console.log(
+      `Goal reduced by ${amount}. Current goal: ${this.state.currentGoal} (Original: ${this.state.originalGoal})`
+    );
   }
 }
 

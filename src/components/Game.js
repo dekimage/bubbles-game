@@ -16,6 +16,8 @@ import CardViewer from "./CardViewer";
 import ShopPhase from "./ShopPhase";
 import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
+import DeckViewer from "./DeckViewer";
+import BadgeAttachViewer from "./BadgeAttachViewer";
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -27,9 +29,20 @@ const Game = observer(() => {
       index === gameStore.state.shopSlotIndex &&
       gameStore.state.pendingShopChoices[index];
     const isSelected = gameStore.state.selectedSlotIndex === index;
+    const isBoardSelected = card && card === gameStore.state.selectedBoardCard;
 
     if (card) {
-      return <Card card={card} animate={false} />;
+      return (
+        <motion.div
+          className={`cursor-pointer ${
+            isBoardSelected ? "ring-2 ring-purple-500" : ""
+          }`}
+          whileHover={{ scale: 1.05 }}
+          onClick={() => gameStore.selectBoardCard(index)}
+        >
+          <Card card={card} animate={false} />
+        </motion.div>
+      );
     }
 
     if (isPendingShop) {
@@ -54,10 +67,31 @@ const Game = observer(() => {
     );
   };
 
+  // Add debug function
+  const enterDebugShop = () => {
+    gameStore.state.pearls = 30;
+    gameStore.state.isShopPhase = true;
+    gameStore.drawShopCards();
+    gameStore.drawShopItems();
+  };
+
   return (
     <>
       {/* Main Game UI */}
       <div className="min-h-screen bg-slate-900 text-white p-4">
+        {/* Moved debug button more to the left */}
+        {process.env.NODE_ENV === "development" && (
+          <motion.button
+            className="fixed bottom-4 right-32 px-4 py-2 bg-red-600 hover:bg-red-500 
+                     rounded-lg font-bold text-white z-50 flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={enterDebugShop}
+          >
+            <span>🐞</span> Debug Shop
+          </motion.button>
+        )}
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8 bg-slate-800 p-4 rounded-lg">
           <div className="flex gap-4">
@@ -108,14 +142,24 @@ const Game = observer(() => {
           </div>
           <div
             className={`font-bold ${
-              gameStore.state.currentWater >= gameStore.state.waterGoal
+              gameStore.state.currentWater >= gameStore.state.currentGoal
                 ? "text-green-400"
                 : "text-white"
             }`}
           >
-            Water: {gameStore.state.currentWater}/{gameStore.state.waterGoal}
+            Water: {gameStore.state.currentWater}/{gameStore.state.currentGoal}
           </div>
           <div>Pearls: {gameStore.state.pearls}</div>
+        </div>
+
+        {/* Update goal display */}
+        <div className="flex items-center gap-2 text-xl">
+          <span>Goal: {gameStore.state.currentGoal} water</span>
+          {gameStore.state.currentGoal !== gameStore.state.originalGoal && (
+            <span className="text-gray-400 text-sm">
+              (Original: {gameStore.state.originalGoal})
+            </span>
+          )}
         </div>
 
         {/* Game Board */}
@@ -403,6 +447,8 @@ const Game = observer(() => {
 
       {/* Shop Phase Overlay */}
       {gameStore.state.isShopPhase && <ShopPhase />}
+      <DeckViewer />
+      <BadgeAttachViewer />
     </>
   );
 });
