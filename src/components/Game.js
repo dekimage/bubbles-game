@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { motion } from "framer-motion";
+import { motion, animate } from "framer-motion";
 import { gameStore } from "@/stores/gameStore";
 import {
   FaTrashAlt,
@@ -29,6 +29,49 @@ import deckImage from "../../public/assets/props/deck.png";
 import discardImage from "../../public/assets/props/discard.png";
 
 import slotImage from "../../public/assets/props/leftslot.png";
+
+const CircularProgress = ({ current, goal }) => {
+  const percentage = Math.min((current / goal) * 100, 100);
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative">
+      {/* Background circle */}
+      <svg width="160" height="160" className="rotate-[-90deg]">
+        <circle
+          cx="80"
+          cy="80"
+          r={radius}
+          stroke="#1a365d"
+          strokeWidth="4"
+          fill="none"
+        />
+        {/* Progress circle */}
+        <motion.circle
+          cx="80"
+          cy="80"
+          r={radius}
+          stroke="#3b82f6"
+          strokeWidth="4"
+          fill="none"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      </svg>
+      {/* Water text in center */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+        <div className="text-2xl font-bold text-white">
+          {current}/{goal}
+        </div>
+        <div className="text-sm text-blue-300">Water</div>
+      </div>
+    </div>
+  );
+};
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -103,7 +146,7 @@ const Game = observer(() => {
           alt="Ocean background"
           //   fill
           priority
-          className="object-cover"
+          className="w-screen h-screen"
           quality={100}
           height={1440}
           width={2560}
@@ -113,133 +156,98 @@ const Game = observer(() => {
       {/* Main Game UI */}
       <div className="min-h-screen text-white">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 bg-slate-800 rounded-[20px] p-4 rounded-lg">
-          <div className="flex gap-4">
-            {/* Relics */}
-            <div className="flex gap-2">
-              {gameStore.state.relics.map((relic) => (
-                <Popover.Root key={relic.id}>
-                  <Popover.Trigger asChild>
-                    <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
-                      {relic.emoji}
-                    </div>
-                  </Popover.Trigger>
-                  <Popover.Portal>
-                    <Popover.Content className="z-50" sideOffset={5}>
-                      <ItemPopover item={relic} />
-                      <Popover.Arrow className="fill-slate-700" />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
-              ))}
+        <div className="flex justify-center w-full">
+          <div className="flex justify-between items-center bg-slate-800 rounded-[20px] p-4 w-fit">
+            <div className="flex gap-4">
+              {/* Relics */}
+              <div className="flex gap-2">
+                {gameStore.state.relics.map((relic) => (
+                  <Popover.Root key={relic.id}>
+                    <Popover.Trigger asChild>
+                      <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                        {relic.emoji}
+                      </div>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content className="z-50" sideOffset={5}>
+                        <ItemPopover item={relic} />
+                        <Popover.Arrow className="fill-slate-700" />
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                ))}
+              </div>
+              {/* Consumables */}
+              <div className="flex gap-2">
+                {gameStore.state.consumables.map((consumable) => (
+                  <Popover.Root key={consumable.id}>
+                    <Popover.Trigger asChild>
+                      <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                        {consumable.emoji}
+                      </div>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content className="z-50" sideOffset={5}>
+                        <ItemPopover
+                          item={consumable}
+                          isConsumable={true}
+                          onUse={() => gameStore.useConsumable(consumable)}
+                        />
+                        <Popover.Arrow className="fill-slate-700" />
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                ))}
+              </div>
             </div>
-            {/* Consumables */}
-            <div className="flex gap-2">
-              {gameStore.state.consumables.map((consumable) => (
-                <Popover.Root key={consumable.id}>
-                  <Popover.Trigger asChild>
-                    <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
-                      {consumable.emoji}
-                    </div>
-                  </Popover.Trigger>
-                  <Popover.Portal>
-                    <Popover.Content className="z-50" sideOffset={5}>
-                      <ItemPopover
-                        item={consumable}
-                        isConsumable={true}
-                        onUse={() => gameStore.useConsumable(consumable)}
-                      />
-                      <Popover.Arrow className="fill-slate-700" />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
-              ))}
+
+            <div>
+              Round: {gameStore.state.round}/{gameStore.state.maxRounds}
             </div>
-          </div>
 
-          <div>
-            Round: {gameStore.state.round}/{gameStore.state.maxRounds}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div
-              className={`font-bold ${
-                gameStore.state.currentWater >= gameStore.state.currentGoal
-                  ? "text-green-400"
-                  : "text-white"
-              }`}
-            >
-              Water: {gameStore.state.currentWater}/
-              {gameStore.state.currentGoal}
-            </div>
-            {process.env.NODE_ENV === "development" && (
-              <motion.button
-                className="px-2 py-1 bg-blue-600 rounded text-sm"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => (gameStore.state.currentWater += 20)}
-              >
-                +20
-              </motion.button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div>Pearls: {gameStore.state.pearls}</div>
-            {process.env.NODE_ENV === "development" && (
-              <motion.button
-                className="px-2 py-1 bg-yellow-600 rounded text-sm"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => (gameStore.state.pearls += 20)}
-              >
-                +20
-              </motion.button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Deck and Discard buttons */}
             <div className="flex items-center gap-4">
-              <motion.div
-                className="relative cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setViewingDeck(true)}
-              >
-                <Image
-                  src={deckImage}
-                  alt="View deck"
-                  width={64}
-                  height={64}
-                  priority
-                />
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg w-fit">
-                  {gameStore.state.mainDeck.length}
-                </span>
-              </motion.div>
+              {/* Deck and Discard buttons */}
+              <div className="flex items-center gap-4">
+                <motion.div
+                  className="relative cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setViewingDeck(true)}
+                >
+                  <Image
+                    src={deckImage}
+                    alt="View deck"
+                    width={64}
+                    height={64}
+                    priority
+                  />
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg w-fit">
+                    {gameStore.state.mainDeck.length}
+                  </span>
+                </motion.div>
 
-              <motion.div
-                className="relative cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setViewingDiscard(true)}
-              >
-                <Image
-                  src={discardImage}
-                  alt="View discard"
-                  width={64}
-                  height={64}
-                  priority
-                />
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg">
-                  {gameStore.state.discardPile.length}
-                </span>
-              </motion.div>
+                <motion.div
+                  className="relative cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setViewingDiscard(true)}
+                >
+                  <Image
+                    src={discardImage}
+                    alt="View discard"
+                    width={64}
+                    height={64}
+                    priority
+                  />
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg">
+                    {gameStore.state.discardPile.length}
+                  </span>
+                </motion.div>
+              </div>
+
+              <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
+              <ResetButton />
             </div>
-
-            <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
-            <ResetButton />
           </div>
         </div>
 
@@ -314,7 +322,7 @@ const Game = observer(() => {
               </div>
             </div>
 
-            {/* Center Bubble with End Round Button */}
+            {/* Center Bubble with Progress and End Round Button */}
             <div className="flex-grow flex justify-center items-center px-8">
               <div className="relative w-[400px] h-[400px] flex-shrink-0">
                 <Image
@@ -325,6 +333,13 @@ const Game = observer(() => {
                   width={400}
                   height={400}
                 />
+                {/* Circular Progress */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <CircularProgress
+                    current={gameStore.state.currentWater}
+                    goal={gameStore.state.currentGoal}
+                  />
+                </div>
                 {/* End Round Button */}
                 <button
                   className={`absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 ${
