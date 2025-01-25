@@ -149,6 +149,7 @@ class GameStore {
     selectedCardForRemoval: null, // Card selected to be removed
     badgeApplicationMode: false, // Whether we're choosing a card to badge
     currentBadge: null, // Badge to be applied
+    shopRerollCost: 1, // Always costs 1 pearl to reroll in shop
   };
 
   constructor() {
@@ -468,6 +469,19 @@ class GameStore {
   nextRound() {
     if (!this.canAdvanceRound()) return;
 
+    // Count empty slots and award bonus pearls
+    const emptySlots = this.state.boardSlots.filter(
+      (slot) => slot === null
+    ).length;
+    const pearlBonus = emptySlots * 2;
+
+    if (pearlBonus > 0) {
+      this.state.pearls += pearlBonus;
+      console.log(
+        `Bonus pearls for efficiency: +${pearlBonus} 💎 (${emptySlots} empty slots)`
+      );
+    }
+
     // Move all played cards to discard pile
     this.state.boardSlots.forEach((card) => {
       if (card) {
@@ -478,7 +492,7 @@ class GameStore {
     // Clear the board
     this.state.boardSlots = Array(10).fill(null);
 
-    // Enter shop phase and draw all shop options
+    // Enter shop phase and draw initial shop cards
     this.state.isShopPhase = true;
     this.drawShopCards();
     this.drawShopItems();
@@ -551,25 +565,21 @@ class GameStore {
   }
 
   rerollShopCards() {
-    if (
-      this.state.rerollsRemaining === 0 &&
-      this.state.pearls < this.state.pearlRerollCost
-    ) {
-      console.log("Not enough rerolls or pearls!");
+    // Shop rerolls always cost 1 pearl
+    if (this.state.pearls < this.state.shopRerollCost) {
+      console.log("Not enough pearls to reroll shop!");
       return;
     }
 
-    // Use reroll or deduct pearl
-    if (this.state.rerollsRemaining > 0) {
-      this.state.rerollsRemaining--;
-    } else {
-      this.state.pearls -= this.state.pearlRerollCost;
-    }
+    // Deduct pearl cost
+    this.state.pearls -= this.state.shopRerollCost;
 
-    // Return cards to shop deck and reshuffle
+    // Return current cards to shop deck
     this.state.shopDisplayedCards.forEach((card) => {
       this.state.shopDeck.push(card);
     });
+
+    // Shuffle and draw new cards
     this.state.shopDeck = this.shuffleArray(this.state.shopDeck);
     this.drawShopCards();
   }
@@ -586,16 +596,10 @@ class GameStore {
     // Add card to discard pile
     this.state.discardPile.push(card);
 
-    // Remove from shop deck
-    this.state.shopDeck = this.state.shopDeck.filter((c) => c.id !== card.id);
-
-    // Return other cards to shop deck
-    this.state.shopDisplayedCards
-      .filter((c) => c.id !== card.id)
-      .forEach((c) => this.state.shopDeck.push(c));
-
-    // Clear displayed cards
-    this.state.shopDisplayedCards = [];
+    // Remove only the purchased card from displayed cards
+    this.state.shopDisplayedCards = this.state.shopDisplayedCards.filter(
+      (c) => c.id !== card.id
+    );
   }
 
   reshuffleDeckFromDiscard() {

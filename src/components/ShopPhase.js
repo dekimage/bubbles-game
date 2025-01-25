@@ -38,41 +38,96 @@ const ShopPhase = observer(() => {
             <h3 className="text-xl font-bold text-white">Cards</h3>
             {gameStore.state.shopDisplayedCards.length > 0 ? (
               <div className="flex flex-col items-center gap-4">
-                {/* Reroll Button */}
+                {/* Updated Reroll Button */}
                 <motion.button
                   className={`px-4 py-2 rounded-lg font-bold mb-2 flex items-center gap-2
                             ${
-                              gameStore.canReroll()
+                              gameStore.state.pearls >=
+                              gameStore.state.shopRerollCost
                                 ? "bg-purple-600 hover:bg-purple-500"
                                 : "bg-gray-600 cursor-not-allowed opacity-50"
                             }`}
-                  whileHover={gameStore.canReroll() ? { scale: 1.05 } : {}}
-                  whileTap={gameStore.canReroll() ? { scale: 0.95 } : {}}
+                  whileHover={
+                    gameStore.state.pearls >= gameStore.state.shopRerollCost
+                      ? { scale: 1.05 }
+                      : {}
+                  }
+                  whileTap={
+                    gameStore.state.pearls >= gameStore.state.shopRerollCost
+                      ? { scale: 0.95 }
+                      : {}
+                  }
                   onClick={() => gameStore.rerollShopCards()}
-                  disabled={!gameStore.canReroll()}
+                  disabled={
+                    gameStore.state.pearls < gameStore.state.shopRerollCost
+                  }
                 >
                   <FaRedoAlt className="animate-spin-slow" />
-                  Reroll ({gameStore.getRerollCost()})
+                  Reroll (💎 {gameStore.state.shopRerollCost})
                 </motion.button>
 
                 {/* Shop Cards */}
                 <div className="flex justify-center gap-8">
                   {gameStore.state.shopDisplayedCards.map((card) => (
-                    <motion.div
+                    <div
                       key={card.id}
-                      whileHover={{ scale: 1.05 }}
-                      className="cursor-pointer"
-                      onClick={() => gameStore.buyShopCard(card)}
+                      className="flex flex-col items-center gap-2"
                     >
-                      <Card card={card} />
-                    </motion.div>
+                      <Popover.Root>
+                        <Popover.Trigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="cursor-pointer"
+                          >
+                            <Card card={card} />
+                          </motion.div>
+                        </Popover.Trigger>
+                        <Popover.Portal>
+                          <Popover.Content className="z-50" sideOffset={5}>
+                            <ItemPopover item={card} showBuy={false} />
+                            <Popover.Arrow className="fill-slate-700" />
+                          </Popover.Content>
+                        </Popover.Portal>
+                      </Popover.Root>
+                      <div
+                        className={`flex items-center gap-1 font-bold
+                                    ${
+                                      gameStore.state.pearls >= card.cost
+                                        ? "text-white"
+                                        : "text-red-400"
+                                    }`}
+                      >
+                        💎 {card.cost}
+                      </div>
+                      <motion.button
+                        className={`px-4 py-1 rounded-lg font-bold text-sm
+                                  ${
+                                    gameStore.state.pearls >= card.cost
+                                      ? "bg-purple-600 hover:bg-purple-500"
+                                      : "bg-gray-600 cursor-not-allowed opacity-50"
+                                  }`}
+                        whileHover={
+                          gameStore.state.pearls >= card.cost
+                            ? { scale: 1.05 }
+                            : {}
+                        }
+                        whileTap={
+                          gameStore.state.pearls >= card.cost
+                            ? { scale: 0.95 }
+                            : {}
+                        }
+                        onClick={() => gameStore.buyShopCard(card)}
+                        disabled={gameStore.state.pearls < card.cost}
+                      >
+                        Buy
+                      </motion.button>
+                    </div>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="text-center text-slate-400">
-                No cards available. You can still reroll or proceed to next
-                round.
+                No cards available in shop.
               </div>
             )}
           </div>
@@ -85,27 +140,59 @@ const ShopPhase = observer(() => {
             </h3>
             <div className="grid grid-cols-6 gap-4">
               {gameStore.state.shopRelics.map((relic) => (
-                <Popover.Root key={relic.id}>
-                  <Popover.Trigger asChild>
-                    <motion.div
-                      className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      {relic.emoji}
-                    </motion.div>
-                  </Popover.Trigger>
-                  <Popover.Portal>
-                    <Popover.Content className="z-50" sideOffset={5}>
-                      <ItemPopover
-                        item={relic}
-                        showBuy={true}
-                        pearls={gameStore.state.pearls}
-                        onBuy={() => gameStore.buyRelic(relic)}
-                      />
-                      <Popover.Arrow className="fill-slate-700" />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
+                <div
+                  key={relic.id}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <Popover.Root>
+                    <Popover.Trigger asChild>
+                      <motion.div
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {relic.emoji}
+                      </motion.div>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content className="z-50" sideOffset={5}>
+                        <ItemPopover item={relic} showBuy={false} />
+                        <Popover.Arrow className="fill-slate-700" />
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                  <div
+                    className={`flex items-center gap-1 font-bold
+                                ${
+                                  gameStore.state.pearls >= relic.cost
+                                    ? "text-white"
+                                    : "text-red-400"
+                                }`}
+                  >
+                    💎 {relic.cost}
+                  </div>
+                  <motion.button
+                    className={`px-4 py-1 rounded-lg font-bold text-sm
+                              ${
+                                gameStore.state.pearls >= relic.cost
+                                  ? "bg-purple-600 hover:bg-purple-500"
+                                  : "bg-gray-600 cursor-not-allowed opacity-50"
+                              }`}
+                    whileHover={
+                      gameStore.state.pearls >= relic.cost
+                        ? { scale: 1.05 }
+                        : {}
+                    }
+                    whileTap={
+                      gameStore.state.pearls >= relic.cost
+                        ? { scale: 0.95 }
+                        : {}
+                    }
+                    onClick={() => gameStore.buyRelic(relic)}
+                    disabled={gameStore.state.pearls < relic.cost}
+                  >
+                    Buy
+                  </motion.button>
+                </div>
               ))}
             </div>
           </div>
@@ -118,27 +205,59 @@ const ShopPhase = observer(() => {
             </h3>
             <div className="grid grid-cols-6 gap-4">
               {gameStore.state.shopConsumables.map((consumable) => (
-                <Popover.Root key={consumable.id}>
-                  <Popover.Trigger asChild>
-                    <motion.div
-                      className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      {consumable.emoji}
-                    </motion.div>
-                  </Popover.Trigger>
-                  <Popover.Portal>
-                    <Popover.Content className="z-50" sideOffset={5}>
-                      <ItemPopover
-                        item={consumable}
-                        showBuy={true}
-                        pearls={gameStore.state.pearls}
-                        onBuy={() => gameStore.buyConsumable(consumable)}
-                      />
-                      <Popover.Arrow className="fill-slate-700" />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
+                <div
+                  key={consumable.id}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <Popover.Root>
+                    <Popover.Trigger asChild>
+                      <motion.div
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {consumable.emoji}
+                      </motion.div>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content className="z-50" sideOffset={5}>
+                        <ItemPopover item={consumable} showBuy={false} />
+                        <Popover.Arrow className="fill-slate-700" />
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                  <div
+                    className={`flex items-center gap-1 font-bold
+                                ${
+                                  gameStore.state.pearls >= consumable.cost
+                                    ? "text-white"
+                                    : "text-red-400"
+                                }`}
+                  >
+                    💎 {consumable.cost}
+                  </div>
+                  <motion.button
+                    className={`px-4 py-1 rounded-lg font-bold text-sm
+                              ${
+                                gameStore.state.pearls >= consumable.cost
+                                  ? "bg-purple-600 hover:bg-purple-500"
+                                  : "bg-gray-600 cursor-not-allowed opacity-50"
+                              }`}
+                    whileHover={
+                      gameStore.state.pearls >= consumable.cost
+                        ? { scale: 1.05 }
+                        : {}
+                    }
+                    whileTap={
+                      gameStore.state.pearls >= consumable.cost
+                        ? { scale: 0.95 }
+                        : {}
+                    }
+                    onClick={() => gameStore.buyConsumable(consumable)}
+                    disabled={gameStore.state.pearls < consumable.cost}
+                  >
+                    Buy
+                  </motion.button>
+                </div>
               ))}
             </div>
           </div>
