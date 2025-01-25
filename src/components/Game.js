@@ -349,26 +349,6 @@ const Game = observer(() => {
                 Deck ({gameStore.state.mainDeck.length})
               </span>
             </motion.button>
-
-            <motion.button
-              className="flex flex-col items-center justify-center w-16 h-16 bg-slate-700 
-                       rounded-lg hover:bg-slate-600 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <FaGem className="text-xl mb-1" />
-              <span className="text-xs">Upgrades</span>
-            </motion.button>
-
-            <motion.button
-              className="flex flex-col items-center justify-center w-16 h-16 bg-slate-700 
-                       rounded-lg hover:bg-slate-600 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <FaQuestionCircle className="text-xl mb-1" />
-              <span className="text-xs">Help</span>
-            </motion.button>
           </div>
 
           {/* Card Selection with Next Round Button */}

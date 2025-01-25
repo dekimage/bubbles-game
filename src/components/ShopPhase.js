@@ -92,22 +92,12 @@ const ShopPhase = observer(() => {
                       key={card.id}
                       className="flex flex-col items-center gap-2"
                     >
-                      <Popover.Root>
-                        <Popover.Trigger asChild>
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="cursor-pointer"
-                          >
-                            <Card card={card} />
-                          </motion.div>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                          <Popover.Content className="z-50" sideOffset={5}>
-                            <ItemPopover item={card} showBuy={false} />
-                            <Popover.Arrow className="fill-slate-700" />
-                          </Popover.Content>
-                        </Popover.Portal>
-                      </Popover.Root>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        className="cursor-pointer"
+                      >
+                        <Card card={card} />
+                      </motion.div>
                       <div
                         className={`flex items-center gap-1 font-bold
                                     ${

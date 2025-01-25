@@ -22,17 +22,6 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
     <div
       className={`relative w-full h-full p-2 rounded-lg ${getCardColor()} ${className}`}
     >
-      {/* Cost Badge (if card has cost) */}
-      {card.cost && (
-        <div
-          className="absolute -top-2 -right-2 bg-yellow-500 px-2 py-1 rounded-full 
-                    flex items-center gap-1 text-black font-bold shadow-lg transform scale-110"
-        >
-          <span className="text-lg">💎</span>
-          <span className="text-sm">{card.cost}</span>
-        </div>
-      )}
-
       {/* Card Header */}
       <div className="text-xs font-bold mb-1 text-center bg-black/20 rounded py-1">
         {card.type.toUpperCase()}

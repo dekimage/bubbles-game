@@ -152,86 +152,6 @@ const RELICS = [
 ];
 
 const CONSUMABLES = [
-  //   {
-  //     id: "water-potion",
-  //     name: "Water Potion",
-  //     emoji: "🧪",
-  //     cost: 2,
-  //     rarity: RARITY.COMMON,
-  //     effect: "Add 3 water to current total",
-  //   },
-  //   {
-  //     id: "pearl-dust",
-  //     name: "Pearl Dust",
-  //     emoji: "✨",
-  //     cost: 1,
-  //     rarity: RARITY.COMMON,
-  //     effect: "Gain 2 pearls immediately",
-  //   },
-  //   {
-  //     id: "whirlpool",
-  //     name: "Whirlpool",
-  //     emoji: "🌀",
-  //     cost: 3,
-  //     rarity: RARITY.UNCOMMON,
-  //     effect: "Reshuffle all cards back into deck",
-  //   },
-  //   {
-  //     id: "treasure-map",
-  //     name: "Treasure Map",
-  //     emoji: "🗺️",
-  //     cost: 4,
-  //     rarity: RARITY.RARE,
-  //     effect: "Choose any card from the deck",
-  //   },
-  //   {
-  //     id: "mystic-conch",
-  //     name: "Mystic Conch",
-  //     emoji: "🐚",
-  //     cost: 2,
-  //     rarity: RARITY.UNCOMMON,
-  //     effect: "Next card played costs no rerolls",
-  //   },
-  //   {
-  //     id: "coral-polish",
-  //     name: "Coral Polish",
-  //     emoji: "✨",
-  //     cost: 3,
-  //     rarity: RARITY.UNCOMMON,
-  //     effect: "Upgrade a random card in your hand with a badge",
-  //   },
-  //   {
-  //     id: "merchants-pearl",
-  //     name: "Merchant's Pearl",
-  //     emoji: "🔮",
-  //     cost: 2,
-  //     rarity: RARITY.COMMON,
-  //     effect: "Next shop purchase is 2 pearls cheaper",
-  //   },
-  //   {
-  //     id: "tide-scroll",
-  //     name: "Tide Scroll",
-  //     emoji: "📜",
-  //     cost: 3,
-  //     rarity: RARITY.UNCOMMON,
-  //     // effect: "Draw 3 cards, keep 1, others go to discard",
-  //   },
-  //   {
-  //     id: "kraken-ink",
-  //     name: "Kraken Ink",
-  //     emoji: "🦑",
-  //     cost: 4,
-  //     rarity: RARITY.RARE,
-  //     effect: "Double the water value of next played card",
-  //   },
-  //   {
-  //     id: "bubble-shield",
-  //     name: "Bubble Shield",
-  //     emoji: "🫧",
-  //     cost: 2,
-  //     rarity: RARITY.COMMON,
-  //     // effect: "Prevent water value from decreasing this round",
-  //   },
   {
     id: "chaos-whirlpool",
     name: "Chaos Whirlpool",
@@ -537,15 +457,15 @@ class GameStore {
     // Extended shop deck with more cards
     const shopDeck = [
       // Existing cards
-      {
-        id: `shop-seafolk-1`,
-        type: CARD_TYPES.SEAFOLK,
-        suit: "CORAL",
-        suitEmoji: SUITS.CORAL,
-        value: 6,
-        waterValue: 6,
-        cost: 2,
-      },
+      //   {
+      //     id: `shop-seafolk-1`,
+      //     type: CARD_TYPES.SEAFOLK,
+      //     suit: "CORAL",
+      //     suitEmoji: SUITS.CORAL,
+      //     value: 6,
+      //     waterValue: 6,
+      //     cost: 2,
+      //   },
       {
         id: `shop-machine-1`,
         type: CARD_TYPES.MACHINE,
@@ -594,6 +514,259 @@ class GameStore {
         suitEmoji: SUITS.CORAL,
         multiplier: 2.0,
         cost: 2,
+      },
+      // New Seafolk cards - 7 value (2 cost)
+      {
+        id: `shop-seafolk-coral-7`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        value: 7,
+        waterValue: 7,
+        cost: 2,
+      },
+      {
+        id: `shop-seafolk-shell-7`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        value: 7,
+        waterValue: 7,
+        cost: 2,
+      },
+      {
+        id: `shop-seafolk-wave-7`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        value: 7,
+        waterValue: 7,
+        cost: 2,
+      },
+      {
+        id: `shop-seafolk-star-7`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        value: 7,
+        waterValue: 7,
+        cost: 2,
+      },
+
+      // New Seafolk cards - 10 value (3 cost)
+      {
+        id: `shop-seafolk-coral-10`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        value: 10,
+        waterValue: 10,
+        cost: 3,
+      },
+      {
+        id: `shop-seafolk-shell-10`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        value: 10,
+        waterValue: 10,
+        cost: 3,
+      },
+      {
+        id: `shop-seafolk-wave-10`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        value: 10,
+        waterValue: 10,
+        cost: 3,
+      },
+      {
+        id: `shop-seafolk-star-10`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        value: 10,
+        waterValue: 10,
+        cost: 3,
+      },
+
+      // New Seafolk cards - 13 value (4 cost)
+      {
+        id: `shop-seafolk-coral-13`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        value: 13,
+        waterValue: 13,
+        cost: 4,
+      },
+      {
+        id: `shop-seafolk-shell-13`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        value: 13,
+        waterValue: 13,
+        cost: 4,
+      },
+      {
+        id: `shop-seafolk-wave-13`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        value: 13,
+        waterValue: 13,
+        cost: 4,
+      },
+      {
+        id: `shop-seafolk-star-13`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        value: 13,
+        waterValue: 13,
+        cost: 4,
+      },
+
+      // New Seafolk cards - 16 value (5 cost)
+      {
+        id: `shop-seafolk-coral-16`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        value: 16,
+        waterValue: 16,
+        cost: 5,
+      },
+      {
+        id: `shop-seafolk-shell-16`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        value: 16,
+        waterValue: 16,
+        cost: 5,
+      },
+      {
+        id: `shop-seafolk-wave-16`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        value: 16,
+        waterValue: 16,
+        cost: 5,
+      },
+      {
+        id: `shop-seafolk-star-16`,
+        type: CARD_TYPES.SEAFOLK,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        value: 16,
+        waterValue: 16,
+        cost: 5,
+      },
+
+      // Machine cards - x3 multiplier (3 cost)
+      {
+        id: `shop-machine-coral-3x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        multiplier: 3.0,
+        cost: 3,
+      },
+      {
+        id: `shop-machine-shell-3x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        multiplier: 3.0,
+        cost: 3,
+      },
+      {
+        id: `shop-machine-wave-3x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        multiplier: 3.0,
+        cost: 3,
+      },
+      {
+        id: `shop-machine-star-3x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        multiplier: 3.0,
+        cost: 3,
+      },
+
+      // Machine cards - x4 multiplier (5 cost)
+      {
+        id: `shop-machine-coral-4x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        multiplier: 4.0,
+        cost: 5,
+      },
+      {
+        id: `shop-machine-shell-4x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        multiplier: 4.0,
+        cost: 5,
+      },
+      {
+        id: `shop-machine-wave-4x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        multiplier: 4.0,
+        cost: 5,
+      },
+      {
+        id: `shop-machine-star-4x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        multiplier: 4.0,
+        cost: 5,
+      },
+
+      // Machine cards - x5 multiplier (7 cost)
+      {
+        id: `shop-machine-coral-5x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "CORAL",
+        suitEmoji: SUITS.CORAL,
+        multiplier: 5.0,
+        cost: 7,
+      },
+      {
+        id: `shop-machine-shell-5x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "SHELL",
+        suitEmoji: SUITS.SHELL,
+        multiplier: 5.0,
+        cost: 7,
+      },
+      {
+        id: `shop-machine-wave-5x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "WAVE",
+        suitEmoji: SUITS.WAVE,
+        multiplier: 5.0,
+        cost: 7,
+      },
+      {
+        id: `shop-machine-star-5x`,
+        type: CARD_TYPES.MACHINE,
+        suit: "STAR",
+        suitEmoji: SUITS.STAR,
+        multiplier: 5.0,
+        cost: 7,
       },
     ];
 
@@ -700,9 +873,6 @@ class GameStore {
         });
 
         waterBySuit[card.suit] += baseValue;
-        console.log(
-          `${card.suit} card base value: ${card.waterValue}, after relelic: ${baseValue}`
-        );
       } else if (card.type === CARD_TYPES.MACHINE) {
         let multiplierBonus = card.multiplier - 1; // Convert 2.0 to 1.0 for percentage
 
@@ -734,17 +904,17 @@ class GameStore {
       const suitWater = baseWater * (1 + multiplierPercentage);
       totalWater += suitWater;
 
-      console.log(
-        `${suit}: ${baseWater} water × (1 + ${multiplierPercentage}) = ${suitWater}`
-      );
+      //   console.log(
+      //     `${suit}: ${baseWater} water × (1 + ${multiplierPercentage}) = ${suitWater}`
+      //   );
     });
 
     // Add blue stamp bonus
     const blueStampBonus = this.state.blueStampsPlayed * 3;
     totalWater += blueStampBonus;
-    console.log(
-      `Blue stamp bonus: ${this.state.blueStampsPlayed} stamps × 3 = +${blueStampBonus} water`
-    );
+    // console.log(
+    //   `Blue stamp bonus: ${this.state.blueStampsPlayed} stamps × 3 = +${blueStampBonus} water`
+    // );
 
     runInAction(() => {
       this.state.currentWater = Math.floor(totalWater);
@@ -752,7 +922,6 @@ class GameStore {
   });
 
   selectSlot(index) {
-    console.log("IGRAM KARTA");
     // If we already have displayed cards, don't allow selecting a new slot
     if (this.state.displayedCards.length > 0) return;
 
@@ -1407,37 +1576,37 @@ class GameStore {
 
       // Base card effects
       if (card.type === CARD_TYPES.SEAFOLK) {
-        console.log("SEAFOLK card - water value handled by calculateWater");
+        // console.log("SEAFOLK card - water value handled by calculateWater");
       } else if (card.type === CARD_TYPES.MACHINE) {
-        console.log("MACHINE card - multiplier handled by calculateWater");
+        // console.log("MACHINE card - multiplier handled by calculateWater");
       } else if (card.type === CARD_TYPES.ECONOMY) {
         this.state.pearls += card.pearlValue;
-        console.log("ECONOMY card - added", card.pearlValue, "pearls");
+        // console.log("ECONOMY card - added", card.pearlValue, "pearls");
       }
 
       // Execute badge effects in order
       if (card.upgrades && card.upgrades.length > 0) {
-        console.log("Card has upgrades:", card.upgrades);
+        // console.log("Card has upgrades:", card.upgrades);
         card.upgrades.forEach((badge) => {
-          console.log(
-            "Processing badge type:",
-            badge.type,
-            "Full badge:",
-            badge
-          );
+          //   console.log(
+          //     "Processing badge type:",
+          //     badge.type,
+          //     "Full badge:",
+          //     badge
+          //   );
           // Debug log to see what we're comparing against
-          console.log("Available BADGES:", Object.keys(BADGES));
+          //   console.log("Available BADGES:", Object.keys(BADGES));
 
           const badgeType = BADGES[badge.type.toUpperCase()]; // Add toUpperCase()
           if (badgeType && badgeType.effect) {
-            console.log("Found matching badge effect for:", badgeType.name);
+            // console.log("Found matching badge effect for:", badgeType.name);
             badgeType.effect(card, this);
           } else {
-            console.log("No matching badge effect found for type:", badge.type);
+            // console.log("No matching badge effect found for type:", badge.type);
           }
         });
       } else {
-        console.log("Card has no upgrades");
+        // console.log("Card has no upgrades");
       }
 
       // Recalculate water after all effects
