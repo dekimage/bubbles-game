@@ -2,6 +2,8 @@ import { observer } from "mobx-react-lite";
 import { motion } from "framer-motion";
 import { gameStore } from "@/stores/gameStore";
 import Card from "./Card";
+import Image from "next/image";
+import { BADGES } from "@/database";
 
 const CardRemovalService = observer(() => {
   if (!gameStore.state.cardRemovalOptions.length) {
@@ -24,12 +26,21 @@ const CardRemovalService = observer(() => {
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-white mb-2">
             {gameStore.state.badgeApplicationMode
-              ? "Choose a card to receive the badge"
+              ? "Choose a card to receive the gem"
               : "Choose a card to remove"}
           </h3>
           {gameStore.state.badgeApplicationMode && (
-            <div className="text-xl">
-              Badge to apply: {gameStore.state.currentBadge.emoji}
+            <div className="text-xl flex items-center justify-center gap-2 text-white text-center">
+              Apply Gem:
+              <div className="">
+                <Image
+                  src={BADGES[gameStore.state.currentBadge.type].image}
+                  alt={BADGES[gameStore.state.currentBadge.type].name}
+                  width={32}
+                  height={32}
+                  className="w-[75px] h-[75px]"
+                />
+              </div>
             </div>
           )}
         </div>

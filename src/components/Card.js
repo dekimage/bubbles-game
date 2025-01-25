@@ -1,4 +1,19 @@
 import { motion } from "framer-motion";
+import Image from "next/image";
+
+// Card background imports
+import seafolk1Image from "../../public/assets/cards/seafolk-1.png";
+import seafolk2Image from "../../public/assets/cards/seafolk-2.png";
+import seafolk3Image from "../../public/assets/cards/seafolk-3.png";
+import seafolk4Image from "../../public/assets/cards/seafolk-4.png";
+
+import machine1Image from "../../public/assets/cards/machine-1.png";
+import machine2Image from "../../public/assets/cards/machine-2.png";
+import machine3Image from "../../public/assets/cards/machine-3.png";
+import machine4Image from "../../public/assets/cards/machine-4.png";
+
+import economy1Image from "../../public/assets/cards/economy1.png";
+import economy2Image from "../../public/assets/cards/economy2.png";
 
 const Card = ({ card, onClick, className = "", animate = true }) => {
   if (!card) return null;
@@ -18,63 +33,107 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
     }
   };
 
+  const getCardBackground = (card) => {
+    // Map of card combinations to their respective background images
+    const backgroundMap = {
+      // Seafolk cards (based on suits)
+      "seafolk-suit1": seafolk1Image,
+      "seafolk-suit2": seafolk2Image,
+      "seafolk-suit3": seafolk3Image,
+      "seafolk-suit4": seafolk4Image,
+
+      // Machine cards (based on suits)
+      "machine-suit1": machine1Image,
+      "machine-suit2": machine2Image,
+      "machine-suit3": machine3Image,
+      "machine-suit4": machine4Image,
+
+      // Economy cards
+      "economy-normal": economy1Image,
+      "economy-shop": economy2Image,
+    };
+
+    // Determine the correct key for the map
+    let key = "";
+
+    if (card.type === "seafolk") {
+      // Determine suit number (1-4) based on card.suit
+      const suitNumber = getSuitNumber(card.suit);
+      key = `seafolk-suit${suitNumber}`;
+    } else if (card.type === "machine") {
+      const suitNumber = getSuitNumber(card.suit);
+      key = `machine-suit${suitNumber}`;
+    } else if (card.type === "economy") {
+      // Check if it's a shop card (has cost property)
+      key = card.cost ? "economy-shop" : "economy-normal";
+    }
+
+    return backgroundMap[key];
+  };
+
+  // Helper function to convert suit to number
+  const getSuitNumber = (suit) => {
+    const suitMap = {
+      CORAL: 1,
+      SHELL: 2,
+      WAVE: 3,
+      STAR: 4,
+    };
+    return suitMap[suit] || 1; // Default to 1 if suit not found
+  };
+
   const CardContent = () => (
-    <div
-      className={`relative w-full h-full p-2 rounded-lg ${getCardColor()} ${className}`}
-    >
-      {/* Card Header */}
-      <div className="text-xs font-bold mb-1 text-center bg-black/20 rounded py-1">
-        {card.type.toUpperCase()}
-      </div>
+    <div className={`relative w-full h-full p-2 rounded-lg ${className}`}>
+      {/* Background Image */}
+      <Image
+        src={getCardBackground(card)}
+        alt={`${card.type} card background`}
+        fill
+        priority
+        className="object-cover rounded-lg"
+      />
 
-      {/* Card Main Content */}
-      <div className="flex flex-col items-center justify-center h-[70%]">
-        {card.type === "seafolk" && (
-          <>
-            <div className="text-4xl mb-2">{card.suitEmoji}</div>
-            <div className="text-2xl font-bold">{card.value}</div>
-          </>
-        )}
+      {/* Card Content */}
+      <div className="relative z-10">
+        {/* Card Values - Moved to top-left */}
+        <div className="absolute top-1 left-2">
+          {card.type === "seafolk" && (
+            <div className="text-3xl font-bold text-white drop-shadow-lg">
+              {card.value}
+            </div>
+          )}
 
-        {card.type === "machine" && (
-          <>
-            <div className="text-4xl mb-2">{card.suitEmoji}</div>
-            <div className="text-xl font-bold">×{card.multiplier}</div>
-          </>
-        )}
+          {card.type === "machine" && (
+            <div className="text-3xl font-bold text-white drop-shadow-lg">
+              {card.multiplier}
+            </div>
+          )}
 
-        {card.type === "economy" && (
-          <>
-            <div className="text-4xl mb-2">💎</div>
-            <div className="text-xl font-bold">+{card.pearlValue}</div>
-          </>
-        )}
-      </div>
-
-      {/* Card Footer */}
-      {card.suit && (
-        <div className="absolute bottom-2 left-2 right-2 text-center text-xs bg-black/20 rounded py-1">
-          {card.suit}
+          {card.type === "economy" && (
+            <div className="text-3xl font-bold text-white drop-shadow-lg">
+              +{card.pearlValue}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Badges */}
-      {card.upgrades && card.upgrades.length > 0 && (
-        <div className="absolute top-1 right-1 flex gap-1">
-          {card.upgrades.map((badge, index) => (
-            <span key={index} className="text-lg">
-              {badge.emoji}
-            </span>
-          ))}
-        </div>
-      )}
+        {/* Badges */}
+        {card.upgrades && card.upgrades.length > 0 && (
+          <div className="absolute top-1 right-1 flex gap-1">
+            {card.upgrades.map((badge, index) => (
+              <span key={index} className="text-lg">
+                {badge.emoji}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 
   if (animate) {
     return (
       <motion.div
-        className="w-32 h-48 cursor-pointer"
+        className="w-48 h-72 cursor-pointer"
         whileHover={{ scale: 1.05 }}
         onClick={onClick}
       >
@@ -84,7 +143,7 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
   }
 
   return (
-    <div className="w-24 h-32 cursor-pointer" onClick={onClick}>
+    <div className="w-36 h-48 cursor-pointer" onClick={onClick}>
       <CardContent />
     </div>
   );

@@ -18,9 +18,17 @@ import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
 import DeckViewer from "./DeckViewer";
 import BadgeAttachViewer from "./BadgeAttachViewer";
-import { RelicManager } from "@/managers/RelicManager";
 import GameOverDialog from "./GameOverDialog";
 import ResetButton from "./ResetButton";
+import Image from "next/image";
+import bgImage from "../../public/assets/main/bg.png";
+import bubble1Image from "../../public/assets/main/bubble1.png";
+import bubble2Image from "../../public/assets/main/bubble2.png";
+import bubble3Image from "../../public/assets/main/bubble3.png";
+import deckImage from "../../public/assets/props/deck.png";
+import discardImage from "../../public/assets/props/discard.png";
+
+import slotImage from "../../public/assets/props/leftslot.png";
 
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
@@ -59,23 +67,53 @@ const Game = observer(() => {
 
     return (
       <div
-        className={`w-24 h-32 bg-slate-800 rounded-lg
-                    ${
-                      index === gameStore.state.shopSlotIndex
-                        ? "border-2 border-yellow-500"
-                        : ""
-                    }
+        className={`relative w-[156px] h-[168px] cursor-pointer
                     ${isSelected ? "ring-2 ring-yellow-400" : ""}`}
-      />
+      >
+        <Image
+          src={slotImage}
+          alt="Empty card slot"
+          width={156}
+          height={168}
+          className="w-full h-full"
+        />
+      </div>
     );
+  };
+
+  // Helper function to get the current bubble image
+  const getCurrentBubbleImage = () => {
+    const bubbleType = gameStore.getBubbleImage();
+    switch (bubbleType) {
+      case "bubble2":
+        return bubble2Image;
+      case "bubble3":
+        return bubble3Image;
+      default:
+        return bubble1Image;
+    }
   };
 
   return (
     <>
+      {/* Background Image */}
+      <div className="fixed inset-0 -z-10">
+        <Image
+          src={bgImage}
+          alt="Ocean background"
+          //   fill
+          priority
+          className="object-cover"
+          quality={100}
+          height={1440}
+          width={2560}
+        />
+      </div>
+
       {/* Main Game UI */}
-      <div className="min-h-screen bg-slate-900 text-white p-4">
+      <div className="min-h-screen text-white">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 bg-slate-800 p-4 rounded-lg">
+        <div className="flex justify-between items-center mb-8 bg-slate-800 rounded-[20px] p-4 rounded-lg">
           <div className="flex gap-4">
             {/* Relics */}
             <div className="flex gap-2">
@@ -161,47 +199,64 @@ const Game = observer(() => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Deck and Discard buttons */}
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="relative cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setViewingDeck(true)}
+              >
+                <Image
+                  src={deckImage}
+                  alt="View deck"
+                  width={64}
+                  height={64}
+                  priority
+                />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg w-fit">
+                  {gameStore.state.mainDeck.length}
+                </span>
+              </motion.div>
+
+              <motion.div
+                className="relative cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setViewingDiscard(true)}
+              >
+                <Image
+                  src={discardImage}
+                  alt="View discard"
+                  width={64}
+                  height={64}
+                  priority
+                />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg">
+                  {gameStore.state.discardPile.length}
+                </span>
+              </motion.div>
+            </div>
+
             <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
             <ResetButton />
           </div>
         </div>
 
-        {/* Update goal display */}
-        <div className="flex items-center gap-2 text-xl">
-          <span>Goal: {gameStore.state.currentGoal} water</span>
-          {gameStore.state.currentGoal !== gameStore.state.originalGoal && (
-            <span className="text-gray-400 text-sm">
-              (Original: {gameStore.state.originalGoal})
-            </span>
-          )}
-        </div>
-
         {/* Game Board */}
-        <div className="relative max-w-4xl mx-auto">
-          {/* Center Bubble */}
-          <div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                      w-48 h-48 bg-blue-900/30 rounded-full flex flex-wrap justify-center items-center gap-2 p-4"
-          >
-            {gameStore.state.enemySlots?.map((_, index) => (
-              <div
-                key={`enemy-${index}`}
-                className="w-16 h-16 bg-red-900/30 rounded-lg border border-red-500/30"
-              />
-            ))}
-          </div>
-
+        <div className="relative">
           {/* Card Slots */}
-          <div className="flex justify-center gap-32">
+          <div className="flex justify-between items-center">
             {/* Left Slots */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 flex-shrink-0">
               {/* Top two cards */}
               <div className="flex gap-4">
                 {gameStore.state.boardSlots.slice(0, 2).map((_, index) => (
                   <div
                     key={`left-${index}`}
                     className={`${
-                      !gameStore.state.boardSlots[index] && "bg-slate-800"
+                      !gameStore.state.boardSlots[index] &&
+                      "bg-slate-800 rounded-[20px] rounded-[20px]"
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index
@@ -220,7 +275,8 @@ const Game = observer(() => {
               {/* Middle card */}
               <div
                 className={`${
-                  !gameStore.state.boardSlots[2] && "bg-slate-800"
+                  !gameStore.state.boardSlots[2] &&
+                  "bg-slate-800 rounded-[20px] rounded-[20px]"
                 } rounded-lg cursor-pointer ml-12
                         ${
                           gameStore.state.selectedSlotIndex === 2
@@ -239,7 +295,8 @@ const Game = observer(() => {
                   <div
                     key={`left-${index + 3}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 3] && "bg-slate-800"
+                      !gameStore.state.boardSlots[index + 3] &&
+                      "bg-slate-800 rounded-[20px]"
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 3
@@ -257,15 +314,42 @@ const Game = observer(() => {
               </div>
             </div>
 
+            {/* Center Bubble with End Round Button */}
+            <div className="flex-grow flex justify-center items-center px-8">
+              <div className="relative w-[400px] h-[400px] flex-shrink-0">
+                <Image
+                  src={getCurrentBubbleImage()}
+                  alt="Toxic bubble"
+                  className="object-contain"
+                  priority
+                  width={400}
+                  height={400}
+                />
+                {/* End Round Button */}
+                <button
+                  className={`absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 ${
+                    gameStore.canAdvanceRound()
+                      ? "bg-green-600 hover:bg-green-500"
+                      : "bg-gray-600 cursor-not-allowed"
+                  } rounded-lg font-bold transition-colors`}
+                  onClick={() => gameStore.nextRound()}
+                  disabled={!gameStore.canAdvanceRound()}
+                >
+                  End Round
+                </button>
+              </div>
+            </div>
+
             {/* Right Slots */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 flex-shrink-0">
               {/* Top two cards */}
               <div className="flex gap-4">
                 {gameStore.state.boardSlots.slice(5, 7).map((_, index) => (
                   <div
                     key={`right-${index}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 5] && "bg-slate-800"
+                      !gameStore.state.boardSlots[index + 5] &&
+                      "bg-slate-800 rounded-[20px]"
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 5
@@ -284,7 +368,8 @@ const Game = observer(() => {
               {/* Middle card */}
               <div
                 className={`${
-                  !gameStore.state.boardSlots[7] && "bg-slate-800"
+                  !gameStore.state.boardSlots[7] &&
+                  "bg-slate-800 rounded-[20px]"
                 } rounded-lg cursor-pointer ml-12
                         ${
                           gameStore.state.selectedSlotIndex === 7
@@ -303,7 +388,8 @@ const Game = observer(() => {
                   <div
                     key={`right-${index + 8}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 8] && "bg-slate-800"
+                      !gameStore.state.boardSlots[index + 8] &&
+                      "bg-slate-800 rounded-[20px]"
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 8
@@ -324,36 +410,7 @@ const Game = observer(() => {
         </div>
 
         {/* Bottom Section */}
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-800 p-4">
-          {/* Button Bar */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex gap-2">
-            <motion.button
-              className="flex flex-col items-center justify-center w-16 h-16 bg-slate-700 
-                       rounded-lg hover:bg-slate-600 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setViewingDiscard(true)}
-            >
-              <FaTrashAlt className="text-xl mb-1" />
-              <span className="text-xs">
-                Discard ({gameStore.state.discardPile.length})
-              </span>
-            </motion.button>
-
-            <motion.button
-              className="flex flex-col items-center justify-center w-16 h-16 bg-slate-700 
-                       rounded-lg hover:bg-slate-600 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setViewingDeck(true)}
-            >
-              <FaLayerGroup className="text-xl mb-1" />
-              <span className="text-xs">
-                Deck ({gameStore.state.mainDeck.length})
-              </span>
-            </motion.button>
-          </div>
-
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 bg-slate-800 p-2 w-fit rounded-t-lg">
           {/* Card Selection with Next Round Button */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -402,19 +459,6 @@ const Game = observer(() => {
                 </div>
               )}
             </div>
-
-            {/* Next Round Button */}
-            <button
-              className={`px-6 py-2 ${
-                gameStore.canAdvanceRound()
-                  ? "bg-green-600 hover:bg-green-500"
-                  : "bg-gray-600 cursor-not-allowed"
-              } rounded-lg font-bold`}
-              onClick={() => gameStore.nextRound()}
-              disabled={!gameStore.canAdvanceRound()}
-            >
-              End Round
-            </button>
           </div>
         </div>
       </div>

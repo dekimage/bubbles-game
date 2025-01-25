@@ -1,5 +1,5 @@
+import { RARITY } from "@/database";
 import { motion } from "framer-motion";
-import { RARITY } from "@/stores/gameStore";
 
 const ItemPopover = ({
   item,

@@ -974,7 +974,7 @@ class GameStore {
       // Reset all state to initial values
       this.state = {
         round: 1,
-        maxRounds: 12,
+        maxRounds: 9, // Changed from 12 to 9
         currentWater: 0,
         originalGoal: 20,
         currentGoal: 20,
@@ -1039,6 +1039,14 @@ class GameStore {
 
     // Start fresh game
     this.startNewGame();
+  }
+
+  // Helper to determine which bubble image to show
+  getBubbleImage() {
+    const round = this.state.round;
+    if (round <= 3) return "bubble1";
+    if (round <= 6) return "bubble2";
+    return "bubble3";
   }
 }
 

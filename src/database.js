@@ -319,10 +319,15 @@ export const CONSUMABLES = [
   },
 ];
 
+import redBadgeImage from "../public/assets/icons/red.png";
+import blueBadgeImage from "../public/assets/icons/blue.png";
+import yellowBadgeImage from "../public/assets/icons/yellow.png";
+import purpleBadgeImage from "../public/assets/icons/purple.png";
+
 export const BADGES = {
   RED: {
     type: "RED",
-    emoji: "🔴",
+    image: redBadgeImage,
     name: "Power Badge",
     description: "Triggers card effect twice",
     effect: (card, gameStore) => {
@@ -334,7 +339,7 @@ export const BADGES = {
   },
   BLUE: {
     type: "BLUE",
-    emoji: "🔵",
+    image: blueBadgeImage,
     name: "Water Badge",
     description: "Adds +3 water when played",
     effect: (card, gameStore) => {
@@ -350,7 +355,7 @@ export const BADGES = {
   },
   YELLOW: {
     type: "YELLOW",
-    emoji: "🟡",
+    image: yellowBadgeImage,
     name: "Pearl Badge",
     description: "Generates +2 pearls when played",
     effect: (card, gameStore) => {
@@ -361,7 +366,7 @@ export const BADGES = {
   },
   PURPLE: {
     type: "PURPLE",
-    emoji: "🟣",
+    image: purpleBadgeImage,
     name: "Magic Badge",
     description: "Creates a copy in deck",
     effect: (card, gameStore) => {

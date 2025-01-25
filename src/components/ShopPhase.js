@@ -1,12 +1,15 @@
 import { observer } from "mobx-react-lite";
 import { motion } from "framer-motion";
 import { FaRedoAlt } from "react-icons/fa";
-import { gameStore, RARITY } from "@/stores/gameStore";
+import { gameStore } from "@/stores/gameStore";
 import Card from "./Card";
 import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
 import CardRemovalService from "./CardRemovalService";
 import { RelicManager } from "@/managers/RelicManager";
+import { RARITY } from "@/database";
+import Image from "next/image";
+import shopImage from "../../public/assets/main/shop.png";
 
 const ShopPhase = observer(() => {
   const renderPrice = (item, type) => {
@@ -28,10 +31,21 @@ const ShopPhase = observer(() => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center p-8">
-      <div className="bg-slate-800 rounded-lg p-8 max-w-4xl w-full h-full overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center">
+      <div className="w-full h-full max-w-[90vw] max-h-[90vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative m-8">
+        {/* Background Image */}
+        <div className="inset-0 rounded-lg overflow-hidden -z-100">
+          <Image
+            src="/assets/main/shop.png"
+            alt="Shop background"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+
         {/* Pearl Display */}
-        <div className="sticky top-0 bg-slate-800 pb-4 mb-8 border-b border-slate-700">
+        <div className="sticky top-[-40px] bg-slate-800/80  border-b border-slate-700 z-10">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-white">Shop Phase</h2>
             <div className="flex items-center gap-8">
@@ -51,10 +65,9 @@ const ShopPhase = observer(() => {
         </div>
 
         {/* Shop Sections */}
-        <div className="space-y-8">
+        <div className="space-y-8 z-10 relative">
           {/* Cards Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">Cards</h3>
             {gameStore.state.shopDisplayedCards.length > 0 ? (
               <div className="flex flex-col items-center gap-4">
                 {/* Updated Reroll Button */}
@@ -143,11 +156,11 @@ const ShopPhase = observer(() => {
 
           {/* Relics Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white text-center">
               Relics ({gameStore.state.relics.length}/
               {gameStore.state.maxRelics})
             </h3>
-            <div className="grid grid-cols-6 gap-4">
+            <div className="flex flex-wrap justify-center gap-24">
               {gameStore.state.shopRelics.map((relic) => (
                 <div
                   key={relic.id}
@@ -208,11 +221,11 @@ const ShopPhase = observer(() => {
 
           {/* Consumables Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white text-center">
               Consumables ({gameStore.state.consumables.length}/
               {gameStore.state.maxConsumables})
             </h3>
-            <div className="grid grid-cols-6 gap-4">
+            <div className="flex flex-wrap justify-center gap-24">
               {gameStore.state.shopConsumables.map((consumable) => (
                 <div
                   key={consumable.id}
@@ -273,9 +286,6 @@ const ShopPhase = observer(() => {
 
           {/* Card Removal Service */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">
-              Card Removal Service
-            </h3>
             <div className="flex items-center gap-4">
               <CardRemovalService />
               <span className="text-slate-400">

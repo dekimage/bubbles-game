@@ -1,4 +1,5 @@
-import { BADGES, gameStore } from "@/stores/gameStore";
+import { BADGES } from "@/database";
+import { gameStore } from "@/stores/gameStore";
 
 export class EffectManager {
   static async handleConsumableEffect(consumable, targetCard = null) {
