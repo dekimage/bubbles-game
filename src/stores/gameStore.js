@@ -406,28 +406,62 @@ const CONSUMABLES = [
 
 export const BADGES = {
   RED: {
-    type: "red",
+    type: "RED",
     emoji: "🔴",
     name: "Power Badge",
-    description: "Increases card value by 1",
+    description: "Triggers card effect twice",
+    effect: (card, gameStore) => {
+      console.log("🔴 RED BADGE: Executing card effect twice");
+      gameStore.executeCardEffect(card);
+      gameStore.executeCardEffect(card);
+      console.log("🔴 RED BADGE: Double effect complete");
+    },
   },
   BLUE: {
-    type: "blue",
+    type: "BLUE",
     emoji: "🔵",
     name: "Water Badge",
-    description: "Adds water synergy",
+    description: "Adds +3 water when played",
+    effect: (card, gameStore) => {
+      console.log("🔵 BLUE BADGE: Counting blue stamp");
+      runInAction(() => {
+        gameStore.state.blueStampsPlayed += 1;
+        console.log(
+          "🔵 BLUE BADGE: Blue stamps this round:",
+          gameStore.state.blueStampsPlayed
+        );
+      });
+    },
   },
   YELLOW: {
-    type: "yellow",
+    type: "YELLOW",
     emoji: "🟡",
     name: "Pearl Badge",
-    description: "Generates 1 pearl when played",
+    description: "Generates +2 pearls when played",
+    effect: (card, gameStore) => {
+      console.log("🟡 YELLOW BADGE: Adding +2 pearls");
+      gameStore.state.pearls += 2;
+      console.log("🟡 YELLOW BADGE: New pearl total:", gameStore.state.pearls);
+    },
   },
   PURPLE: {
-    type: "purple",
+    type: "PURPLE",
     emoji: "🟣",
     name: "Magic Badge",
-    description: "Doubles card effect",
+    description: "Creates a copy in deck",
+    effect: (card, gameStore) => {
+      console.log("🟣 PURPLE BADGE: Creating card copy");
+      const baseCopy = {
+        ...card,
+        upgrades: [],
+        id: `${card.id}-copy-${Math.random()}`,
+      };
+      gameStore.state.mainDeck.push(baseCopy);
+      gameStore.state.mainDeck = gameStore.shuffleArray(
+        gameStore.state.mainDeck
+      );
+      console.log("🟣 PURPLE BADGE: Copy created and shuffled into deck");
+    },
   },
 };
 
@@ -475,6 +509,9 @@ class GameStore {
     currentBadgeType: null,
     onBadgeAttachClose: null,
     randomCardsForBadge: [],
+    availableRelics: [...RELICS],
+    availableConsumables: [...CONSUMABLES],
+    blueStampsPlayed: 0, // Track blue stamps played this round
   };
 
   constructor() {
@@ -643,25 +680,28 @@ class GameStore {
       if (card.type === CARD_TYPES.SEAFOLK) {
         let baseValue = card.waterValue;
 
-        // Check for suit-specific relics
+        // Check for suit-specific value relics
         this.state.relics.forEach((relic) => {
           if (relic.id === "starlight-crystal" && card.suit === "STAR") {
             baseValue += 2;
           }
-          if (relic.id === "coral-crown" && card.suit === "CORAL") {
+          if (relic.id === "wave-pendant" && card.suit === "WAVE") {
+            // Changed from wave-stone to wave-pendant
             baseValue += 2;
           }
-          if (relic.id === "wave-pendant" && card.suit === "WAVE") {
+          if (relic.id === "coral-crown" && card.suit === "CORAL") {
+            // Changed from coral-stone to coral-crown
             baseValue += 2;
           }
           if (relic.id === "shell-charm" && card.suit === "SHELL") {
+            // Changed from shell-stone to shell-charm
             baseValue += 2;
           }
         });
 
         waterBySuit[card.suit] += baseValue;
         console.log(
-          `${card.suit} card base value: ${card.waterValue}, after relics: ${baseValue}`
+          `${card.suit} card base value: ${card.waterValue}, after relelic: ${baseValue}`
         );
       } else if (card.type === CARD_TYPES.MACHINE) {
         let multiplierBonus = card.multiplier - 1; // Convert 2.0 to 1.0 for percentage
@@ -670,27 +710,15 @@ class GameStore {
         this.state.relics.forEach((relic) => {
           if (relic.id === "star-amplifier" && card.suit === "STAR") {
             multiplierBonus += 0.5;
-            console.log(
-              `Star Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
-            );
           }
           if (relic.id === "wave-amplifier" && card.suit === "WAVE") {
             multiplierBonus += 0.5;
-            console.log(
-              `Wave Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
-            );
           }
           if (relic.id === "coral-amplifier" && card.suit === "CORAL") {
             multiplierBonus += 0.5;
-            console.log(
-              `Coral Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
-            );
           }
           if (relic.id === "shell-amplifier" && card.suit === "SHELL") {
             multiplierBonus += 0.5;
-            console.log(
-              `Shell Amplifier adding 0.5 to multiplier, new total: ${multiplierBonus}`
-            );
           }
         });
 
@@ -711,12 +739,20 @@ class GameStore {
       );
     });
 
+    // Add blue stamp bonus
+    const blueStampBonus = this.state.blueStampsPlayed * 3;
+    totalWater += blueStampBonus;
+    console.log(
+      `Blue stamp bonus: ${this.state.blueStampsPlayed} stamps × 3 = +${blueStampBonus} water`
+    );
+
     runInAction(() => {
       this.state.currentWater = Math.floor(totalWater);
     });
   });
 
   selectSlot(index) {
+    console.log("IGRAM KARTA");
     // If we already have displayed cards, don't allow selecting a new slot
     if (this.state.displayedCards.length > 0) return;
 
@@ -762,9 +798,24 @@ class GameStore {
 
   drawShopCards() {
     const cardsNeeded = 3;
-    const drawnCards = [];
+    console.log("Shop deck size before drawing:", this.state.shopDeck.length);
 
-    // Draw cards from shop deck
+    // Clear displayed cards first
+    const currentDisplayed = [...this.state.shopDisplayedCards];
+    this.state.shopDisplayedCards = [];
+
+    // Return displayed cards to deck only if they're not already there
+    currentDisplayed.forEach((card) => {
+      if (!this.state.shopDeck.some((deckCard) => deckCard.id === card.id)) {
+        this.state.shopDeck.push(card);
+      }
+    });
+
+    // Shuffle the deck
+    this.state.shopDeck = this.shuffleArray(this.state.shopDeck);
+
+    // Draw new cards
+    const drawnCards = [];
     while (drawnCards.length < cardsNeeded && this.state.shopDeck.length > 0) {
       const randomIndex = Math.floor(
         Math.random() * this.state.shopDeck.length
@@ -773,6 +824,9 @@ class GameStore {
       drawnCards.push(drawnCard);
     }
 
+    console.log(
+      `Drew ${drawnCards.length} shop cards from deck of ${this.state.shopDeck.length} cards`
+    );
     this.state.shopDisplayedCards = drawnCards;
   }
 
@@ -782,52 +836,59 @@ class GameStore {
     this.state.selectedSlotIndex = null;
   }
 
-  selectCard(card) {
-    if (this.state.selectedSlotIndex === null) return;
-
+  buyCard(card) {
     // Check if this is a shop card (has cost property)
-    if (card.cost) {
-      // Check if player has enough pearls
-      if (this.state.pearls < card.cost) {
-        console.log("Not enough pearls!");
-        return;
-      }
-      // Deduct the cost
-      this.state.pearls -= card.cost;
+    if (!card.cost) return;
 
-      // Remove the card from shop deck
-      this.state.shopDeck = this.state.shopDeck.filter((c) => c.id !== card.id);
-
-      // Clear pending choices for this slot
-      this.state.displayedCards = [];
-    } else {
-      // Remove the card from main deck
-      this.state.mainDeck = this.state.mainDeck.filter((c) => c.id !== card.id);
+    // Check if player has enough pearls
+    if (this.state.pearls < card.cost) {
+      console.log("Not enough pearls!");
+      return;
     }
 
-    // Place card in selected slot
-    this.state.boardSlots[this.state.selectedSlotIndex] = card;
+    // Deduct the cost
+    this.state.pearls -= card.cost;
 
-    // Handle economy cards immediately
-    if (card.type === CARD_TYPES.ECONOMY) {
-      this.state.pearls += card.pearlValue;
-    }
+    // Remove the card from shop deck
+    this.state.shopDeck = this.state.shopDeck.filter((c) => c.id !== card.id);
 
     // Handle consumable cards
     if (card.type === CARD_TYPES.CONSUMABLE) {
       this.state.removedFromGame.push(card);
     } else {
-      // Move unselected cards back to their respective decks
-      this.state.displayedCards.forEach((c) => {
-        if (c.id !== card.id) {
-          if (c.cost) {
-            this.state.shopDeck.push(c);
-          } else {
-            this.state.discardPile.push(c);
-          }
-        }
-      });
+      // Move card to discard pile (main deck)
+      this.state.discardPile.push(card);
     }
+
+    // Return other displayed shop cards to shop deck
+    this.state.shopDisplayedCards.forEach((c) => {
+      if (c.id !== card.id) {
+        this.state.shopDeck.push(c);
+      }
+    });
+
+    // Clear displayed shop cards
+    this.state.shopDisplayedCards = [];
+  }
+
+  selectCard(card) {
+    if (this.state.selectedSlotIndex === null) return;
+
+    // Remove the card from main deck
+    this.state.mainDeck = this.state.mainDeck.filter((c) => c.id !== card.id);
+
+    // Place card in selected slot
+    this.state.boardSlots[this.state.selectedSlotIndex] = card;
+
+    // Execute card effects (including badges)
+    this.executeCardEffect(card);
+
+    // Move unselected cards to discard pile
+    this.state.displayedCards.forEach((c) => {
+      if (c.id !== card.id) {
+        this.state.discardPile.push(c);
+      }
+    });
 
     // Clear displayed cards and selected slot
     this.state.displayedCards = [];
@@ -879,6 +940,14 @@ class GameStore {
 
       // Reset water to 0 first
       this.state.currentWater = 0;
+
+      // Return any displayed shop cards back to deck before entering shop phase
+      this.state.shopDisplayedCards.forEach((card) => {
+        if (!this.state.shopDeck.some((deckCard) => deckCard.id === card.id)) {
+          this.state.shopDeck.push(card);
+        }
+      });
+      this.state.shopDisplayedCards = [];
 
       // Enter shop phase and draw all shop items
       this.state.isShopPhase = true;
@@ -972,6 +1041,13 @@ class GameStore {
   // Add method to finish shopping and start next round
   finishShopping() {
     runInAction(() => {
+      // Return any remaining shop cards to deck before clearing
+      this.state.shopDisplayedCards.forEach((card) => {
+        if (!this.state.shopDeck.some((deckCard) => deckCard.id === card.id)) {
+          this.state.shopDeck.push(card);
+        }
+      });
+
       // Move all board cards to discard pile
       this.state.boardSlots.forEach((card) => {
         if (card) {
@@ -996,6 +1072,9 @@ class GameStore {
       // Reset rerolls
       this.state.rerollsRemaining = 5;
 
+      // Reset blue stamps counter
+      this.state.blueStampsPlayed = 0;
+
       // Save game state
       this.saveGame();
     });
@@ -1011,7 +1090,7 @@ class GameStore {
     // Deduct pearl cost
     this.state.pearls -= this.state.shopRerollCost;
 
-    // Return current cards to shop deck
+    // Return current displayed cards to shop deck
     this.state.shopDisplayedCards.forEach((card) => {
       this.state.shopDeck.push(card);
     });
@@ -1030,10 +1109,16 @@ class GameStore {
     }
 
     this.state.pearls -= finalCost;
-    this.state.discardPile.push(card);
+    this.state.discardPile.push(card); // Add to main deck's discard pile
+
+    // Remove only the bought card from shop display
     this.state.shopDisplayedCards = this.state.shopDisplayedCards.filter(
       (c) => c.id !== card.id
     );
+
+    // Remove the bought card from shop deck permanently
+    this.state.shopDeck = this.state.shopDeck.filter((c) => c.id !== card.id);
+
     return true;
   }
 
@@ -1047,8 +1132,8 @@ class GameStore {
   }
 
   drawShopItems() {
-    // Draw 3 random consumables for the shop
-    const availableConsumables = [...CONSUMABLES];
+    // Draw 3 random consumables from available ones instead of all CONSUMABLES
+    const availableConsumables = [...this.state.availableConsumables];
     this.state.shopConsumables = [];
 
     for (let i = 0; i < 3; i++) {
@@ -1076,6 +1161,11 @@ class GameStore {
     this.state.pearls -= finalCost;
     this.state.relics.push(relic);
     this.state.shopRelics = this.state.shopRelics.filter(
+      (r) => r.id !== relic.id
+    );
+
+    // Remove from available relics
+    this.state.availableRelics = this.state.availableRelics.filter(
       (r) => r.id !== relic.id
     );
 
@@ -1122,6 +1212,12 @@ class GameStore {
     this.state.shopConsumables = this.state.shopConsumables.filter(
       (c) => c.id !== consumable.id
     );
+
+    // Remove from available consumables
+    this.state.availableConsumables = this.state.availableConsumables.filter(
+      (c) => c.id !== consumable.id
+    );
+
     return true;
   }
 
@@ -1222,6 +1318,30 @@ class GameStore {
   }
 
   async useConsumable(consumable) {
+    const badgeConsumableIds = [
+      "power-badge-consumable",
+      "water-badge-consumable",
+      "pearl-badge-consumable",
+      "magic-badge-consumable",
+    ];
+
+    if (
+      badgeConsumableIds.includes(consumable.id) &&
+      this.state.selectedBoardCard
+    ) {
+      // If it's one of our specific badge consumables and we have a selected board card
+      this.applyBadgeFromConsumable(
+        { type: consumable.badgeType },
+        this.state.selectedBoardCard
+      );
+      // Remove the used consumable
+      this.removeConsumable(consumable.id);
+      // Clear selection
+      this.state.selectedBoardCard = null;
+      return true;
+    }
+
+    // Handle other consumable types via EffectManager
     const success = await EffectManager.handleConsumableEffect(
       consumable,
       this.state.selectedBoardCard
@@ -1269,8 +1389,8 @@ class GameStore {
   }
 
   drawShopRelics() {
-    // Draw 3 random relics for the shop
-    const availableRelics = [...RELICS];
+    // Draw 3 random relics from available ones instead of all RELICS
+    const availableRelics = [...this.state.availableRelics];
     this.state.shopRelics = [];
 
     for (let i = 0; i < 3; i++) {
@@ -1279,6 +1399,91 @@ class GameStore {
       const relic = availableRelics.splice(randomIndex, 1)[0];
       this.state.shopRelics.push(relic);
     }
+  }
+
+  executeCardEffect(card) {
+    runInAction(() => {
+      console.log("Executing effects for card:", card);
+
+      // Base card effects
+      if (card.type === CARD_TYPES.SEAFOLK) {
+        console.log("SEAFOLK card - water value handled by calculateWater");
+      } else if (card.type === CARD_TYPES.MACHINE) {
+        console.log("MACHINE card - multiplier handled by calculateWater");
+      } else if (card.type === CARD_TYPES.ECONOMY) {
+        this.state.pearls += card.pearlValue;
+        console.log("ECONOMY card - added", card.pearlValue, "pearls");
+      }
+
+      // Execute badge effects in order
+      if (card.upgrades && card.upgrades.length > 0) {
+        console.log("Card has upgrades:", card.upgrades);
+        card.upgrades.forEach((badge) => {
+          console.log(
+            "Processing badge type:",
+            badge.type,
+            "Full badge:",
+            badge
+          );
+          // Debug log to see what we're comparing against
+          console.log("Available BADGES:", Object.keys(BADGES));
+
+          const badgeType = BADGES[badge.type.toUpperCase()]; // Add toUpperCase()
+          if (badgeType && badgeType.effect) {
+            console.log("Found matching badge effect for:", badgeType.name);
+            badgeType.effect(card, this);
+          } else {
+            console.log("No matching badge effect found for type:", badge.type);
+          }
+        });
+      } else {
+        console.log("Card has no upgrades");
+      }
+
+      // Recalculate water after all effects
+      this.calculateWater();
+    });
+  }
+
+  playCard(card, slotIndex) {
+    runInAction(() => {
+      // Place card in slot
+      this.state.boardSlots[slotIndex] = card;
+
+      // Remove from displayed cards
+      this.state.displayedCards = this.state.displayedCards.filter(
+        (c) => c.id !== card.id
+      );
+
+      // Execute card effects (including badges)
+      this.executeCardEffect(card);
+
+      // Clear selection
+      this.state.selectedSlotIndex = null;
+    });
+  }
+
+  applyBadgeFromConsumable(badge, card) {
+    // Initialize upgrades array if it doesn't exist
+    if (!card.upgrades) {
+      card.upgrades = [];
+    }
+
+    // Add the badge
+    card.upgrades.push(badge);
+
+    // Immediately trigger the badge effect since it's from a consumable
+    const badgeType = BADGES[badge.type.toUpperCase()];
+    if (badgeType && badgeType.effect) {
+      console.log(
+        "Triggering immediate badge effect from consumable:",
+        badgeType.name
+      );
+      badgeType.effect(card, this);
+    }
+
+    // Recalculate water since badge might have affected it
+    this.calculateWater();
   }
 }
 
