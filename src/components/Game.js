@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { motion, animate, AnimatePresence } from "framer-motion";
 import { gameStore } from "@/stores/gameStore";
@@ -30,6 +30,7 @@ import deckImage from "../../public/assets/props/deck.png";
 import discardImage from "../../public/assets/props/discard.png";
 import goldImage from "../../public/assets/main/gold.png";
 import slotImage from "../../public/assets/props/leftslot.png";
+import { audioManager } from "@/managers/AudioManager";
 
 const CircularProgress = ({ current, goal }) => {
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -109,6 +110,24 @@ const CircularProgress = ({ current, goal }) => {
 const Game = observer(() => {
   const [viewingDeck, setViewingDeck] = useState(false);
   const [viewingDiscard, setViewingDiscard] = useState(false);
+
+  useEffect(() => {
+    // Initialize audio on first user interaction
+    const handleFirstInteraction = () => {
+      audioManager.initialize();
+      document.removeEventListener("click", handleFirstInteraction);
+    };
+    document.addEventListener("click", handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleFirstInteraction);
+    };
+  }, []);
+
+  // Add this effect to manage tracks based on game state
+  useEffect(() => {
+    audioManager.updateTracksBasedOnLevel(gameStore.state.round);
+  }, [gameStore.state.round]);
 
   const renderSlot = (index) => {
     const card = gameStore.state.boardSlots[index];
