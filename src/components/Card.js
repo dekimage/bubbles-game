@@ -130,7 +130,7 @@ const Card = ({
               fromHand ? "top-4 left-3 text-4xl" : "top-1 left-2 text-2xl"
             }`}
           >
-            <div className="font-bold text-white drop-shadow-lg">
+            <div className="font-bold text-white drop-shadow-lg ">
               {card.value}
             </div>
             {card.cost && (

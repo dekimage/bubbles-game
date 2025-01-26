@@ -1056,7 +1056,6 @@ class GameStore {
   }
 
   addWater(amount) {
-    console.log("AAAA", amount);
     runInAction(() => {
       this.state.currentWater += amount;
       // Recalculate water after adding

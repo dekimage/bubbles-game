@@ -59,23 +59,12 @@ const ShopPhase = observer(() => {
 
   return (
     <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center">
-      <div className="w-full h-full max-w-[100vw] max-h-[140vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative ">
-        {/* Background Image */}
-        <div className="inset-0 rounded-lg overflow-hidden -z-100">
-          <Image
-            src="/assets/main/shopbg2.png"
-            alt="Shop background"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
-
+      <div className="w-full h-full max-w-[100vw] max-h-[140vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative">
         {/* Pearl Display */}
-        <div className="mb-8 top-[-40px] flex justify-center z-10">
+        <div className="mb-8 sticky top-4 flex justify-center z-50">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-8 z-10">
-              <div className="flex items-center bg-slate-900 rounded-[20px] p-2 z-100">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center bg-slate-900/90 rounded-[20px] p-2 backdrop-blur-sm">
                 <span className="text-3xl font-bold text-yellow-400">
                   {gameStore.state.pearls}
                 </span>
@@ -100,9 +89,20 @@ const ShopPhase = observer(() => {
         </div>
 
         {/* Shop Sections */}
-        <div className="space-y-8 z-10 relative">
+        <div className="space-y-8 z-10 relative flex justify-center items-center flex-col">
+          {/* Add background image here */}
+          <div className="fixed inset-0 w-full h-full -z-10">
+            <Image
+              src="/assets/main/shopbg2.png"
+              alt="Shop background"
+              fill
+              priority
+              className="object-cover bg-black/90 opacity-20"
+            />
+          </div>
+
           {/* Cards Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 ">
             {gameStore.state.shopDisplayedCards.length > 0 ? (
               <div className="flex flex-col items-center gap-4">
                 {/* Reroll Button */}
@@ -176,7 +176,7 @@ const ShopPhase = observer(() => {
           </div>
 
           {/* Relics Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 ">
             <h3 className="text-xl font-bold text-white text-center">
               Relics ({gameStore.state.relics.length}/
               {gameStore.state.maxRelics})
@@ -216,7 +216,7 @@ const ShopPhase = observer(() => {
           </div>
 
           {/* Consumables Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 ">
             <h3 className="text-xl font-bold text-white text-center">
               Consumables ({gameStore.state.consumables.length}/
               {gameStore.state.maxConsumables})
@@ -258,8 +258,8 @@ const ShopPhase = observer(() => {
           </div>
 
           {/* Card Removal Service */}
-          <div className="space-y-4 flex justify-center">
-            <div className="flex items-center gap-4 border border-black rounded-[20px] p-4">
+          <div className="space-y-4  flex justify-center">
+            <div className="flex items-center gap-4 border border-black rounded-[20px] bg-slate-600 p-4">
               <CardRemovalService />
               <span className="text-slate-400 flex items-center gap-2">
                 Remove a card and upgrade another{" "}
