@@ -59,7 +59,7 @@ const CardRemovalService = observer(() => {
                 }
               }}
             >
-              <Card card={card} />
+              <Card card={card} fromHand />
               {/* Show existing badges if any */}
               {card.upgrades && card.upgrades.length > 0 && (
                 <div className="absolute top-0 right-0 flex gap-1 p-1">

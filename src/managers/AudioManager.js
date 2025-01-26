@@ -25,6 +25,10 @@ class AudioManager {
       track.loop = true;
       track.volume = 0;
       track.preload = "auto";
+      // This is important for allowing multiple tracks to play simultaneously
+      track.preservesPitch = false;
+      // Ensure tracks keep playing even if not "visible"
+      track.playsInline = true;
     });
 
     // Base track starts unmuted
@@ -42,16 +46,20 @@ class AudioManager {
     }
 
     try {
-      // Start all tracks at the same time
-      const startPromises = Object.values(this.tracks).map((track) => {
-        const playPromise = track.play();
-        if (playPromise !== undefined) {
-          return playPromise;
-        }
-        return Promise.resolve();
-      });
+      // Start all tracks simultaneously
+      await Promise.all(
+        Object.values(this.tracks).map(async (track) => {
+          try {
+            // Force play even if other audio is playing
+            track.mozPreservesPitch = false; // Firefox
+            track.webkitPreservesPitch = false; // Safari
+            await track.play();
+          } catch (e) {
+            console.error("Track play error:", e);
+          }
+        })
+      );
 
-      await Promise.all(startPromises);
       this.isInitialized = true;
       console.log("Audio initialized successfully");
     } catch (error) {
@@ -74,6 +82,10 @@ class AudioManager {
 
     const track = this.tracks[trackName];
     if (track) {
+      // Ensure the track is playing
+      if (track.paused) {
+        track.play().catch((e) => console.error("Error playing track:", e));
+      }
       track.volume = this.isMuted ? 0 : volume;
       track.dataset.previousVolume = volume;
       console.log(`Set ${trackName} volume to:`, volume);
@@ -88,7 +100,6 @@ class AudioManager {
   }
 
   unmuteTrack(trackName, volume = 0.8) {
-    // Increased default volume to 0.8
     if (typeof window === "undefined") return;
     console.log(`Unmuting track: ${trackName} at volume ${volume}`);
     this.setTrackVolume(trackName, volume);
@@ -101,14 +112,22 @@ class AudioManager {
 
     switch (level) {
       case 2:
-        console.log("Level 2: Unmuting level1 track");
-        this.unmuteTrack("level1", 1.0); // Set to maximum volume
+        // Keep base track playing but quieter
+
+        this.setTrackVolume("base", 0.5);
+        this.unmuteTrack("level1", 0.5);
+        this.toggleMasterVolume();
         break;
       case 3:
-        this.unmuteTrack("level2", 1.0);
+        this.setTrackVolume("base", 0.2);
+        this.setTrackVolume("level1", 0.5);
+        this.unmuteTrack("level2", 0.7);
         break;
       case 4:
-        this.unmuteTrack("level3", 1.0);
+        this.setTrackVolume("base", 0.2);
+        this.setTrackVolume("level1", 0.4);
+        this.setTrackVolume("level2", 0.4);
+        this.unmuteTrack("level3", 0.7);
         break;
       default:
         // Reset to base track only

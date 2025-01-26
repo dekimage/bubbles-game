@@ -699,3 +699,38 @@ export const SHOP_DECK = [
     cost: 7,
   },
 ];
+
+export const ITEM_IMAGES = {
+  // Relic Images
+  "starlight-crystal": "/assets/relics/suit1.png",
+  "wave-stone": "/assets/relics/suit2.png",
+  "star-amplifier": "/assets/relics/suit3.png",
+  "fortune-compass": "/assets/relics/suit4.png",
+  "pearl-crown": "/assets/relics/relic1.png",
+  "water-chalice": "/assets/relics/relic2.png",
+  "lucky-dice": "/assets/consumables/reroll.png",
+  "merchants-pendant": "/assets/relics/relic3.png",
+  "ancient-coin": "/assets/relics/relic4.png",
+  "discount-charm": "/assets/relics/relic2.png",
+
+  // Consumable Images
+  "chaos-whirlpool": "/assets/consumables/discard.png",
+  "strategic-discard": "/assets/consumables/discard.png",
+  "power-badge-consumable": "/assets/consumables/red-badge.png",
+  "water-badge-consumable": "/assets/consumables/blue-badge.png",
+  "pearl-badge-consumable": "/assets/consumables/yellow-badge.png",
+  "magic-badge-consumable": "/assets/consumables/purple-badge.png",
+  "power-badge-deck-consumable": "/assets/consumables/red-badge-deck.png",
+  "water-badge-deck-consumable": "/assets/consumables/blue-badge-deck.png",
+  "pearl-badge-deck-consumable": "/assets/consumables/yellow-badge-deck.png",
+  "magic-badge-deck-consumable": "/assets/consumables/purple-badge-deck.png",
+  "minor-goal-reduction": "/assets/consumables/goal-reduction.png",
+  "random-goal-reduction": "/assets/consumables/goal-reduction.png",
+  "major-goal-reduction": "/assets/consumables/goal-reduction.png",
+  "minor-water-boost": "/assets/consumables/watergain2.png",
+  "water-surge": "/assets/consumables/watergain.png",
+  "major-water-boost": "/assets/consumables/watergain.png",
+  "minor-reroll-boost": "/assets/consumables/reroll.png",
+  "reroll-surge": "/assets/consumables/reroll.png",
+  "major-reroll-boost": "/assets/consumables/reroll.png",
+};

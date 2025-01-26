@@ -31,6 +31,7 @@ import discardImage from "../../public/assets/props/discard.png";
 import goldImage from "../../public/assets/main/gold.png";
 import slotImage from "../../public/assets/props/leftslot.png";
 import { audioManager } from "@/managers/AudioManager";
+import { ITEM_IMAGES } from "@/database";
 
 const CircularProgress = ({ current, goal }) => {
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -122,6 +123,15 @@ const Game = observer(() => {
     return () => {
       document.removeEventListener("click", handleFirstInteraction);
     };
+  }, []);
+
+  // Simulate volume button click
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      audioManager.toggleMasterVolume();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Add this effect to manage tracks based on game state
@@ -253,7 +263,13 @@ const Game = observer(() => {
                   <Popover.Root key={relic.id}>
                     <Popover.Trigger asChild>
                       <div className="w-12 h-12 flex items-center justify-center bg-black rounded-[20px] cursor-pointer hover:bg-slate-600">
-                        {relic.emoji}
+                        <Image
+                          src={ITEM_IMAGES[relic.id]}
+                          alt={relic.name}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 object-contain"
+                        />
                       </div>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -271,7 +287,13 @@ const Game = observer(() => {
                   <Popover.Root key={consumable.id}>
                     <Popover.Trigger asChild>
                       <div className="w-12 h-12 flex items-center justify-center bg-black rounded-[20px] cursor-pointer hover:bg-slate-600">
-                        {consumable.emoji}
+                        <Image
+                          src={ITEM_IMAGES[consumable.id]}
+                          alt={consumable.name}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 object-contain"
+                        />
                       </div>
                     </Popover.Trigger>
                     <Popover.Portal>

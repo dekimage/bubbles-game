@@ -1,5 +1,6 @@
-import { RARITY } from "@/database";
+import { RARITY, ITEM_IMAGES } from "@/database";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const ItemPopover = ({
   item,
@@ -13,7 +14,15 @@ const ItemPopover = ({
 
   return (
     <div className="bg-slate-700 p-4 rounded-lg w-64">
-      <div className="text-4xl mb-2">{item.emoji}</div>
+      <div className="w-16 h-16 flex items-center justify-center mb-2">
+        <Image
+          src={ITEM_IMAGES[item.id]}
+          alt={item.name}
+          width={48}
+          height={48}
+          className="w-12 h-12 object-contain"
+        />
+      </div>
       <div className="font-bold text-white">{item.name}</div>
       <div className="text-sm text-slate-300 mb-2">
         {item.description || item.effect}

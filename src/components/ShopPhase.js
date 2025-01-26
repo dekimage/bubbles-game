@@ -7,36 +7,63 @@ import * as Popover from "@radix-ui/react-popover";
 import ItemPopover from "./ItemPopover";
 import CardRemovalService from "./CardRemovalService";
 import { RelicManager } from "@/managers/RelicManager";
-import { RARITY } from "@/database";
+import { RARITY, ITEM_IMAGES } from "@/database";
 import Image from "next/image";
 import shopImage from "../../public/assets/main/shop.png";
+import goldImage from "../../public/assets/main/gold.png";
 
 const ShopPhase = observer(() => {
-  const renderPrice = (item, type) => {
+  const renderPrice = (item, type, onClick) => {
     const basePrice = item.cost;
     const finalPrice = RelicManager.getFinalCost(type, basePrice);
+    const canAfford = gameStore.state.pearls >= finalPrice;
+
+    const priceButton = (price) => (
+      <motion.button
+        className={`flex text-white text-[24px] items-center gap-1 px-4 py-2 rounded-[20px] ${
+          canAfford
+            ? "bg-yellow-400 hover:bg-yellow-300"
+            : "bg-gray-600 opacity-50"
+        }`}
+        whileHover={canAfford ? { scale: 1.05 } : {}}
+        whileTap={canAfford ? { scale: 0.95 } : {}}
+        onClick={canAfford ? onClick : undefined}
+        disabled={!canAfford}
+      >
+        <span className={canAfford ? "text-black font-bold" : "text-gray-300"}>
+          {price}
+        </span>
+        <Image
+          src={goldImage}
+          alt="Gold"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      </motion.button>
+    );
 
     if (finalPrice < basePrice) {
       return (
-        <div className="text-yellow-400">
-          <span className="line-through text-gray-400 mr-2">
-            💎 {basePrice}
+        <div className="flex items-center gap-2">
+          <span className="line-through text-gray-400">
+            {priceButton(basePrice)}
           </span>
-          💎 {finalPrice}
+          {priceButton(finalPrice)}
         </div>
       );
     }
 
-    return <div className="text-yellow-400">💎 {basePrice}</div>;
+    return priceButton(finalPrice);
   };
 
   return (
     <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center">
-      <div className="w-full h-full max-w-[90vw] max-h-[90vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative m-8">
+      <div className="w-full h-full max-w-[100vw] max-h-[100vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative ">
         {/* Background Image */}
         <div className="inset-0 rounded-lg overflow-hidden -z-100">
           <Image
-            src="/assets/main/shop.png"
+            src="/assets/main/shopbg.png"
             alt="Shop background"
             fill
             priority
@@ -45,13 +72,21 @@ const ShopPhase = observer(() => {
         </div>
 
         {/* Pearl Display */}
-        <div className="sticky top-[-40px] bg-slate-800/80  border-b border-slate-700 z-10">
+        <div className="mb-8 top-[-40px] flex justify-center z-10">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-white">Shop Phase</h2>
-            <div className="flex items-center gap-8">
-              <span className="text-3xl font-bold text-yellow-400">
-                💎 {gameStore.state.pearls}
-              </span>
+            <div className="flex items-center gap-8 z-10">
+              <div className="flex items-center bg-slate-900 rounded-[20px] p-2 z-100">
+                <span className="text-3xl font-bold text-yellow-400">
+                  {gameStore.state.pearls}
+                </span>
+                <Image
+                  src={goldImage}
+                  alt="Gold"
+                  width={32}
+                  height={32}
+                  className="ml-1 w-8 h-8"
+                />
+              </div>
               <motion.button
                 className="px-6 py-3 rounded-lg font-bold bg-green-600 hover:bg-green-500"
                 whileHover={{ scale: 1.05 }}
@@ -70,13 +105,13 @@ const ShopPhase = observer(() => {
           <div className="space-y-4">
             {gameStore.state.shopDisplayedCards.length > 0 ? (
               <div className="flex flex-col items-center gap-4">
-                {/* Updated Reroll Button */}
+                {/* Reroll Button */}
                 <motion.button
-                  className={`px-4 py-2 rounded-lg font-bold mb-2 flex items-center gap-2
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold
                             ${
                               gameStore.state.pearls >=
                               gameStore.state.shopRerollCost
-                                ? "bg-purple-600 hover:bg-purple-500"
+                                ? "bg-yellow-400 hover:bg-yellow-300"
                                 : "bg-gray-600 cursor-not-allowed opacity-50"
                             }`}
                   whileHover={
@@ -95,7 +130,22 @@ const ShopPhase = observer(() => {
                   }
                 >
                   <FaRedoAlt className="animate-spin-slow" />
-                  Reroll (💎 {gameStore.state.shopRerollCost})
+                  <span
+                    className={
+                      gameStore.state.pearls >= gameStore.state.shopRerollCost
+                        ? "text-black"
+                        : "text-gray-300"
+                    }
+                  >
+                    {gameStore.state.shopRerollCost}
+                  </span>
+                  <Image
+                    src={goldImage}
+                    alt="Gold"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
                 </motion.button>
 
                 {/* Shop Cards */}
@@ -111,38 +161,9 @@ const ShopPhase = observer(() => {
                       >
                         <Card card={card} fromHand />
                       </motion.div>
-                      <div
-                        className={`flex items-center gap-1 font-bold
-                                    ${
-                                      gameStore.state.pearls >= card.cost
-                                        ? "text-white"
-                                        : "text-red-400"
-                                    }`}
-                      >
-                        {renderPrice(card, "shopCard")}
-                      </div>
-                      <motion.button
-                        className={`px-4 py-1 rounded-lg font-bold text-sm
-                                  ${
-                                    gameStore.state.pearls >= card.cost
-                                      ? "bg-purple-600 hover:bg-purple-500"
-                                      : "bg-gray-600 cursor-not-allowed opacity-50"
-                                  }`}
-                        whileHover={
-                          gameStore.state.pearls >= card.cost
-                            ? { scale: 1.05 }
-                            : {}
-                        }
-                        whileTap={
-                          gameStore.state.pearls >= card.cost
-                            ? { scale: 0.95 }
-                            : {}
-                        }
-                        onClick={() => gameStore.buyShopCard(card)}
-                        disabled={gameStore.state.pearls < card.cost}
-                      >
-                        Buy
-                      </motion.button>
+                      {renderPrice(card, "shopCard", () =>
+                        gameStore.buyShopCard(card)
+                      )}
                     </div>
                   ))}
                 </div>
@@ -169,10 +190,16 @@ const ShopPhase = observer(() => {
                   <Popover.Root>
                     <Popover.Trigger asChild>
                       <motion.div
-                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600"
                         whileHover={{ scale: 1.05 }}
                       >
-                        {relic.emoji}
+                        <Image
+                          src={ITEM_IMAGES[relic.id]}
+                          alt={relic.name}
+                          width={48}
+                          height={48}
+                          className="w-20 h-20 object-contain"
+                        />
                       </motion.div>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -182,38 +209,7 @@ const ShopPhase = observer(() => {
                       </Popover.Content>
                     </Popover.Portal>
                   </Popover.Root>
-                  <div
-                    className={`flex items-center gap-1 font-bold
-                                ${
-                                  gameStore.state.pearls >= relic.cost
-                                    ? "text-white"
-                                    : "text-red-400"
-                                }`}
-                  >
-                    {renderPrice(relic, "relic")}
-                  </div>
-                  <motion.button
-                    className={`px-4 py-1 rounded-lg font-bold text-sm
-                              ${
-                                gameStore.state.pearls >= relic.cost
-                                  ? "bg-purple-600 hover:bg-purple-500"
-                                  : "bg-gray-600 cursor-not-allowed opacity-50"
-                              }`}
-                    whileHover={
-                      gameStore.state.pearls >= relic.cost
-                        ? { scale: 1.05 }
-                        : {}
-                    }
-                    whileTap={
-                      gameStore.state.pearls >= relic.cost
-                        ? { scale: 0.95 }
-                        : {}
-                    }
-                    onClick={() => gameStore.buyRelic(relic)}
-                    disabled={gameStore.state.pearls < relic.cost}
-                  >
-                    Buy
-                  </motion.button>
+                  {renderPrice(relic, "relic", () => gameStore.buyRelic(relic))}
                 </div>
               ))}
             </div>
@@ -234,10 +230,16 @@ const ShopPhase = observer(() => {
                   <Popover.Root>
                     <Popover.Trigger asChild>
                       <motion.div
-                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 text-3xl"
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600"
                         whileHover={{ scale: 1.05 }}
                       >
-                        {consumable.emoji}
+                        <Image
+                          src={ITEM_IMAGES[consumable.id]}
+                          alt={consumable.name}
+                          width={48}
+                          height={48}
+                          className="w-20 h-20 object-contain"
+                        />
                       </motion.div>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -247,38 +249,9 @@ const ShopPhase = observer(() => {
                       </Popover.Content>
                     </Popover.Portal>
                   </Popover.Root>
-                  <div
-                    className={`flex items-center gap-1 font-bold
-                                ${
-                                  gameStore.state.pearls >= consumable.cost
-                                    ? "text-white"
-                                    : "text-red-400"
-                                }`}
-                  >
-                    {renderPrice(consumable, "consumable")}
-                  </div>
-                  <motion.button
-                    className={`px-4 py-1 rounded-lg font-bold text-sm
-                              ${
-                                gameStore.state.pearls >= consumable.cost
-                                  ? "bg-purple-600 hover:bg-purple-500"
-                                  : "bg-gray-600 cursor-not-allowed opacity-50"
-                              }`}
-                    whileHover={
-                      gameStore.state.pearls >= consumable.cost
-                        ? { scale: 1.05 }
-                        : {}
-                    }
-                    whileTap={
-                      gameStore.state.pearls >= consumable.cost
-                        ? { scale: 0.95 }
-                        : {}
-                    }
-                    onClick={() => gameStore.buyConsumable(consumable)}
-                    disabled={gameStore.state.pearls < consumable.cost}
-                  >
-                    Buy
-                  </motion.button>
+                  {renderPrice(consumable, "consumable", () =>
+                    gameStore.buyConsumable(consumable)
+                  )}
                 </div>
               ))}
             </div>
