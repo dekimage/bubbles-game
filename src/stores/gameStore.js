@@ -1043,6 +1043,12 @@ class GameStore {
 
   // Helper to determine which bubble image to show
   getBubbleImage() {
+    // First check if water exceeds goal
+    if (this.state.currentWater > this.state.currentGoal) {
+      return "bubble4";
+    }
+
+    // Fall back to round-based logic
     const round = this.state.round;
     if (round <= 3) return "bubble1";
     if (round <= 6) return "bubble2";

@@ -25,6 +25,7 @@ import bgImage from "../../public/assets/main/bg.png";
 import bubble1Image from "../../public/assets/main/bubble1.png";
 import bubble2Image from "../../public/assets/main/bubble2.png";
 import bubble3Image from "../../public/assets/main/bubble3.png";
+import bubble4Image from "../../public/assets/main/bubble4.png";
 import deckImage from "../../public/assets/props/deck.png";
 import discardImage from "../../public/assets/props/discard.png";
 
@@ -45,7 +46,7 @@ const CircularProgress = ({ current, goal }) => {
           cx="80"
           cy="80"
           r={radius}
-          stroke="#1a365d"
+          stroke="#fff"
           strokeWidth="4"
           fill="none"
         />
@@ -145,6 +146,8 @@ const Game = observer(() => {
         return bubble2Image;
       case "bubble3":
         return bubble3Image;
+      case "bubble4":
+        return bubble4Image;
       default:
         return bubble1Image;
     }
@@ -169,7 +172,13 @@ const Game = observer(() => {
       {/* Main Game UI */}
       <div className="min-h-screen text-white">
         {/* Header */}
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center w-full relative">
+          <div
+            className="absolute top-2 right-2 bg-black rounded-[20px] px-4 -translate-x-1/2 text-[40px] drop-shadow-lg w-fit"
+            style={{ color: "#C5CFA3" }}
+          >
+            {gameStore.state.round}/{gameStore.state.maxRounds}
+          </div>
           <div className="flex justify-between items-center  p-4 w-fit">
             <div className="flex gap-4">
               {/* Relics */}
@@ -214,10 +223,6 @@ const Game = observer(() => {
               </div>
             </div>
 
-            <div>
-              Round: {gameStore.state.round}/{gameStore.state.maxRounds}
-            </div>
-
             <div className="flex items-center gap-4">
               {/* Deck and Discard buttons */}
               <div className="flex items-center gap-4">
@@ -234,7 +239,7 @@ const Game = observer(() => {
                     height={64}
                     priority
                   />
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg w-fit">
+                  <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[40px]  text-white drop-shadow-lg w-fit">
                     {gameStore.state.mainDeck.length}
                   </span>
                 </motion.div>
@@ -252,13 +257,12 @@ const Game = observer(() => {
                     height={64}
                     priority
                   />
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white drop-shadow-lg">
+                  <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[40px]  text-white drop-shadow-lg w-fit">
                     {gameStore.state.discardPile.length}
                   </span>
                 </motion.div>
               </div>
 
-              <div>Rerolls: {gameStore.state.rerollsRemaining}</div>
               <ResetButton />
             </div>
           </div>
@@ -352,13 +356,27 @@ const Game = observer(() => {
                 </div>
                 {/* End Round Button */}
                 <button
-                  className={`absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 ${
-                    gameStore.canAdvanceRound()
-                      ? "bg-green-600 hover:bg-green-500"
-                      : "bg-gray-600 cursor-not-allowed"
-                  } rounded-lg font-bold transition-colors`}
+                  className={`absolute text-[20px] text-black bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-[20px]  transition-colors ${
+                    !gameStore.canAdvanceRound() &&
+                    "bg-gray-600 cursor-not-allowed"
+                  }`}
+                  style={{
+                    backgroundColor: gameStore.canAdvanceRound()
+                      ? "#CBF24C"
+                      : undefined,
+                  }}
                   onClick={() => gameStore.nextRound()}
                   disabled={!gameStore.canAdvanceRound()}
+                  onMouseEnter={(e) => {
+                    if (gameStore.canAdvanceRound()) {
+                      e.currentTarget.style.backgroundColor = "#B5DB45";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (gameStore.canAdvanceRound()) {
+                      e.currentTarget.style.backgroundColor = "#CBF24C";
+                    }
+                  }}
                 >
                   End Round
                 </button>

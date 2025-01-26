@@ -131,3 +131,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: "Flavors";
+  src: url("/fonts/Flavors-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Apply the font globally */
+html,
+body {
+  font-family: "YourFontName", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+}
+
+/* Optional: Apply to specific elements */
+.custom-font {
+  font-family: "YourFontName", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+}
