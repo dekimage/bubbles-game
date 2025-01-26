@@ -32,6 +32,7 @@ const Card = ({
   fromHand = false,
   className = "",
   animate = true,
+  isNewlyPlaced = false,
 }) => {
   if (!card) return null;
 
@@ -186,6 +187,24 @@ const Card = ({
       <motion.div
         className="w-48 h-72 cursor-pointer"
         whileHover={{ scale: 1.05 }}
+        initial={
+          isNewlyPlaced
+            ? {
+                scale: 0.1,
+                opacity: 0,
+              }
+            : {}
+        }
+        animate={{
+          scale: 1,
+          opacity: 1,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          duration: 0.5,
+        }}
         onClick={onClick}
       >
         <CardContent />
@@ -194,9 +213,30 @@ const Card = ({
   }
 
   return (
-    <div className="w-36 h-48 cursor-pointer" onClick={onClick}>
+    <motion.div
+      className="w-36 h-48 cursor-pointer"
+      initial={
+        isNewlyPlaced
+          ? {
+              scale: 0.1,
+              opacity: 0,
+            }
+          : {}
+      }
+      animate={{
+        scale: 1,
+        opacity: 1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+        duration: 0.5,
+      }}
+      onClick={onClick}
+    >
       <CardContent />
-    </div>
+    </motion.div>
   );
 };
 

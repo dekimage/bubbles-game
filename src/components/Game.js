@@ -108,7 +108,7 @@ const Game = observer(() => {
           whileHover={{ scale: 1.05 }}
           onClick={() => gameStore.selectBoardCard(index)}
         >
-          <Card card={card} animate={false} />
+          <Card card={card} animate={false} isNewlyPlaced={true} />
         </motion.div>
       );
     }
