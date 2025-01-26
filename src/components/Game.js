@@ -46,8 +46,8 @@ const CircularProgress = ({ current, goal }) => {
           cx="80"
           cy="80"
           r={radius}
-          stroke="#fff"
-          strokeWidth="4"
+          stroke="#D1E0FF"
+          strokeWidth="8"
           fill="none"
         />
         {/* Progress circle */}
@@ -56,7 +56,7 @@ const CircularProgress = ({ current, goal }) => {
           cy="80"
           r={radius}
           stroke="#3b82f6"
-          strokeWidth="4"
+          strokeWidth="8"
           fill="none"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
@@ -66,10 +66,10 @@ const CircularProgress = ({ current, goal }) => {
       </svg>
       {/* Water text in center */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-        <div className="text-2xl font-bold text-white">
+        <div className="text-[40px] font-bold text-[#D1E0FF]">
           {current}/{goal}
         </div>
-        <div className="text-sm text-blue-300">Water</div>
+        <div className="text-[16px] text-[#D1E0FF]">Clean Water</div>
       </div>
 
       {/* Debug Button - Only in Development */}
@@ -160,13 +160,16 @@ const Game = observer(() => {
         <Image
           src={bgImage}
           alt="Ocean background"
-          //   fill
           priority
           className="w-screen h-screen"
           quality={100}
           height={1440}
           width={2560}
         />
+        {/* Dark overlay when cards are displayed */}
+        {gameStore.state.displayedCards.length > 0 && (
+          <div className="absolute inset-0 bg-black/70 transition-opacity duration-200" />
+        )}
       </div>
 
       {/* Main Game UI */}
@@ -180,13 +183,13 @@ const Game = observer(() => {
             {gameStore.state.round}/{gameStore.state.maxRounds}
           </div>
           <div className="flex justify-between items-center  p-4 w-fit">
-            <div className="flex gap-4">
+            <div className="flex gap-4 absolute top-4 left-8">
               {/* Relics */}
               <div className="flex gap-2">
                 {gameStore.state.relics.map((relic) => (
                   <Popover.Root key={relic.id}>
                     <Popover.Trigger asChild>
-                      <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                      <div className="w-12 h-12 flex items-center justify-center bg-black rounded-[20px] cursor-pointer hover:bg-slate-600">
                         {relic.emoji}
                       </div>
                     </Popover.Trigger>
@@ -200,11 +203,11 @@ const Game = observer(() => {
                 ))}
               </div>
               {/* Consumables */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 mr-8">
                 {gameStore.state.consumables.map((consumable) => (
                   <Popover.Root key={consumable.id}>
                     <Popover.Trigger asChild>
-                      <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded cursor-pointer hover:bg-slate-600">
+                      <div className="w-12 h-12 flex items-center justify-center bg-black rounded-[20px] cursor-pointer hover:bg-slate-600">
                         {consumable.emoji}
                       </div>
                     </Popover.Trigger>
@@ -450,15 +453,37 @@ const Game = observer(() => {
         </div>
 
         {/* Bottom Section */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 bg-slate-800 p-2 w-fit rounded-t-lg">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 p-2 w-fit rounded-t-[20px] z-20 bg-black/50">
           {/* Card Selection with Next Round Button */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
               {gameStore.state.displayedCards.length > 0 && (
                 <div className="flex flex-col items-center gap-4">
+                  {/* Card Options */}
+                  <div className="flex justify-center items-center gap-4 h-48 mb-8">
+                    {gameStore.state.displayedCards.map((card, index) => (
+                      <div
+                        key={card.id}
+                        className={`transform transition-transform hover:scale-105 ${
+                          index === 0
+                            ? "-rotate-6 translate-y-2"
+                            : index === 1
+                            ? "-translate-y-4"
+                            : "rotate-6 translate-y-2"
+                        }`}
+                      >
+                        <Card
+                          card={card}
+                          onClick={() => gameStore.selectCard(card)}
+                          fromHand={true}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
                   {/* Reroll Button */}
                   <motion.button
-                    className={`px-4 py-2 rounded-lg font-bold mb-2 flex items-center gap-2
+                    className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2
                               ${
                                 gameStore.canReroll()
                                   ? "bg-purple-600 hover:bg-purple-500"
@@ -472,17 +497,6 @@ const Game = observer(() => {
                     <FaRedoAlt className="animate-spin-slow" />
                     Reroll ({gameStore.getRerollCost()})
                   </motion.button>
-
-                  {/* Card Options */}
-                  <div className="flex justify-center gap-4">
-                    {gameStore.state.displayedCards.map((card) => (
-                      <Card
-                        key={card.id}
-                        card={card}
-                        onClick={() => gameStore.selectCard(card)}
-                      />
-                    ))}
-                  </div>
 
                   {/* Skip button for shop choices */}
                   {gameStore.state.selectedSlotIndex ===

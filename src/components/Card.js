@@ -26,7 +26,13 @@ import economy1Image from "../../public/assets/cards/economy1.png";
 import economy2Image from "../../public/assets/cards/economy2.png";
 import { BADGES } from "@/database";
 
-const Card = ({ card, onClick, className = "", animate = true }) => {
+const Card = ({
+  card,
+  onClick,
+  fromHand = false,
+  className = "",
+  animate = true,
+}) => {
   if (!card) return null;
 
   const getCardColor = () => {
@@ -118,24 +124,38 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
       <div className="relative z-10">
         {/* Card Values - Separate wrappers for each type */}
         {card.type === "seafolk" && (
-          <div className="absolute top-4 left-2">
-            <div className="text-3xl font-bold text-white drop-shadow-lg">
+          <div
+            className={`absolute ${
+              fromHand ? "top-4 left-3 text-4xl" : "top-1 left-2 text-2xl"
+            }`}
+          >
+            <div className="font-bold text-white drop-shadow-lg">
               {card.value}
             </div>
           </div>
         )}
 
         {card.type === "machine" && (
-          <div className="absolute top-5 left-3">
-            <div className="text-3xl font-bold text-white drop-shadow-lg">
-              {card.multiplier}
+          <div
+            className={`absolute ${
+              fromHand ? "top-5 left-1 text-4xl" : "top-1 left-1 text-2xl"
+            }`}
+          >
+            <div className=" font-bold text-white drop-shadow-lg">
+              x{card.multiplier}
             </div>
           </div>
         )}
 
         {card.type === "economy" && (
-          <div className="absolute top-4 left-2">
-            <div className="text-3xl font-bold text-white drop-shadow-lg">
+          <div
+            className={`absolute ${
+              fromHand
+                ? "top-1/2 left-1/2 -translate-x-1/2 text-[60px]"
+                : "top-4 left-2 text-2xl"
+            }`}
+          >
+            <div className=" font-bold text-white drop-shadow-lg">
               +{card.pearlValue}
             </div>
           </div>
