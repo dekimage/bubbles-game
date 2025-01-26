@@ -1048,6 +1048,14 @@ class GameStore {
     if (round <= 6) return "bubble2";
     return "bubble3";
   }
+
+  addWater(amount) {
+    console.log("AAAA", amount);
+    runInAction(() => {
+      this.state.currentWater += amount;
+      // Recalculate water after adding
+    });
+  }
 }
 
 export const gameStore = new GameStore();

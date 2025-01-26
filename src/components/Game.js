@@ -31,6 +31,7 @@ import discardImage from "../../public/assets/props/discard.png";
 import slotImage from "../../public/assets/props/leftslot.png";
 
 const CircularProgress = ({ current, goal }) => {
+  const isDevelopment = process.env.NODE_ENV === "development";
   const percentage = Math.min((current / goal) * 100, 100);
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -69,6 +70,18 @@ const CircularProgress = ({ current, goal }) => {
         </div>
         <div className="text-sm text-blue-300">Water</div>
       </div>
+
+      {/* Debug Button - Only in Development */}
+      {isDevelopment && (
+        <button
+          onClick={() => gameStore.addWater(100)}
+          className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 
+                     bg-blue-600 hover:bg-blue-500 rounded text-xs text-white
+                     transition-colors"
+        >
+          +100 Water (Dev)
+        </button>
+      )}
     </div>
   );
 };
@@ -118,7 +131,7 @@ const Game = observer(() => {
           alt="Empty card slot"
           width={156}
           height={168}
-          className="w-full h-full"
+          className="w-full h-full scale-[130%]"
         />
       </div>
     );
@@ -157,7 +170,7 @@ const Game = observer(() => {
       <div className="min-h-screen text-white">
         {/* Header */}
         <div className="flex justify-center w-full">
-          <div className="flex justify-between items-center bg-slate-800 rounded-[20px] p-4 w-fit">
+          <div className="flex justify-between items-center  p-4 w-fit">
             <div className="flex gap-4">
               {/* Relics */}
               <div className="flex gap-2">
@@ -254,7 +267,7 @@ const Game = observer(() => {
         {/* Game Board */}
         <div className="relative">
           {/* Card Slots */}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mx-32">
             {/* Left Slots */}
             <div className="flex flex-col items-center gap-4 flex-shrink-0">
               {/* Top two cards */}
@@ -263,8 +276,7 @@ const Game = observer(() => {
                   <div
                     key={`left-${index}`}
                     className={`${
-                      !gameStore.state.boardSlots[index] &&
-                      "bg-slate-800 rounded-[20px] rounded-[20px]"
+                      !gameStore.state.boardSlots[index] && "rounded-[20px]"
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index
@@ -283,8 +295,7 @@ const Game = observer(() => {
               {/* Middle card */}
               <div
                 className={`${
-                  !gameStore.state.boardSlots[2] &&
-                  "bg-slate-800 rounded-[20px] rounded-[20px]"
+                  !gameStore.state.boardSlots[2] && " rounded-[20px]"
                 } rounded-lg cursor-pointer ml-12
                         ${
                           gameStore.state.selectedSlotIndex === 2
@@ -303,8 +314,7 @@ const Game = observer(() => {
                   <div
                     key={`left-${index + 3}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 3] &&
-                      "bg-slate-800 rounded-[20px]"
+                      !gameStore.state.boardSlots[index + 3] && ""
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 3
@@ -363,8 +373,7 @@ const Game = observer(() => {
                   <div
                     key={`right-${index}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 5] &&
-                      "bg-slate-800 rounded-[20px]"
+                      !gameStore.state.boardSlots[index + 5] && ""
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 5
@@ -383,8 +392,7 @@ const Game = observer(() => {
               {/* Middle card */}
               <div
                 className={`${
-                  !gameStore.state.boardSlots[7] &&
-                  "bg-slate-800 rounded-[20px]"
+                  !gameStore.state.boardSlots[7] && ""
                 } rounded-lg cursor-pointer ml-12
                         ${
                           gameStore.state.selectedSlotIndex === 7
@@ -403,8 +411,7 @@ const Game = observer(() => {
                   <div
                     key={`right-${index + 8}`}
                     className={`${
-                      !gameStore.state.boardSlots[index + 8] &&
-                      "bg-slate-800 rounded-[20px]"
+                      !gameStore.state.boardSlots[index + 8] && ""
                     } rounded-lg cursor-pointer
                             ${
                               gameStore.state.selectedSlotIndex === index + 8

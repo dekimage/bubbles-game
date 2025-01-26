@@ -6,14 +6,25 @@ import seafolk1Image from "../../public/assets/cards/seafolk-1.png";
 import seafolk2Image from "../../public/assets/cards/seafolk-2.png";
 import seafolk3Image from "../../public/assets/cards/seafolk-3.png";
 import seafolk4Image from "../../public/assets/cards/seafolk-4.png";
+// u seafolk backgrounds
+import seafolk1uImage from "../../public/assets/cards/seafolk-1-u.png";
+import seafolk2uImage from "../../public/assets/cards/seafolk-2-u.png";
+import seafolk3uImage from "../../public/assets/cards/seafolk-3-u.png";
+import seafolk4uImage from "../../public/assets/cards/seafolk-4-u.png";
 
 import machine1Image from "../../public/assets/cards/machine-1.png";
 import machine2Image from "../../public/assets/cards/machine-2.png";
 import machine3Image from "../../public/assets/cards/machine-3.png";
 import machine4Image from "../../public/assets/cards/machine-4.png";
+// u machine backgrounds
+import machine1uImage from "../../public/assets/cards/machine-1-u.png";
+import machine2uImage from "../../public/assets/cards/machine-2-u.png";
+import machine3uImage from "../../public/assets/cards/machine-3-u.png";
+import machine4uImage from "../../public/assets/cards/machine-4-u.png";
 
 import economy1Image from "../../public/assets/cards/economy1.png";
 import economy2Image from "../../public/assets/cards/economy2.png";
+import { BADGES } from "@/database";
 
 const Card = ({ card, onClick, className = "", animate = true }) => {
   if (!card) return null;
@@ -36,17 +47,29 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
   const getCardBackground = (card) => {
     // Map of card combinations to their respective background images
     const backgroundMap = {
-      // Seafolk cards (based on suits)
+      // Regular seafolk cards
       "seafolk-suit1": seafolk1Image,
       "seafolk-suit2": seafolk2Image,
       "seafolk-suit3": seafolk3Image,
       "seafolk-suit4": seafolk4Image,
 
-      // Machine cards (based on suits)
+      // u seafolk cards (with cost)
+      "seafolk-suit1-u": seafolk1uImage,
+      "seafolk-suit2-u": seafolk2uImage,
+      "seafolk-suit3-u": seafolk3uImage,
+      "seafolk-suit4-u": seafolk4uImage,
+
+      // Regular machine cards
       "machine-suit1": machine1Image,
       "machine-suit2": machine2Image,
       "machine-suit3": machine3Image,
       "machine-suit4": machine4Image,
+
+      // u machine cards (with cost)
+      "machine-suit1-u": machine1uImage,
+      "machine-suit2-u": machine2uImage,
+      "machine-suit3-u": machine3uImage,
+      "machine-suit4-u": machine4uImage,
 
       // Economy cards
       "economy-normal": economy1Image,
@@ -57,14 +80,12 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
     let key = "";
 
     if (card.type === "seafolk") {
-      // Determine suit number (1-4) based on card.suit
       const suitNumber = getSuitNumber(card.suit);
-      key = `seafolk-suit${suitNumber}`;
+      key = `seafolk-suit${suitNumber}${card.cost ? "-u" : ""}`;
     } else if (card.type === "machine") {
       const suitNumber = getSuitNumber(card.suit);
-      key = `machine-suit${suitNumber}`;
+      key = `machine-suit${suitNumber}${card.cost ? "-u" : ""}`;
     } else if (card.type === "economy") {
-      // Check if it's a shop card (has cost property)
       key = card.cost ? "economy-shop" : "economy-normal";
     }
 
@@ -95,34 +116,44 @@ const Card = ({ card, onClick, className = "", animate = true }) => {
 
       {/* Card Content */}
       <div className="relative z-10">
-        {/* Card Values - Moved to top-left */}
-        <div className="absolute top-1 left-2">
-          {card.type === "seafolk" && (
+        {/* Card Values - Separate wrappers for each type */}
+        {card.type === "seafolk" && (
+          <div className="absolute top-4 left-2">
             <div className="text-3xl font-bold text-white drop-shadow-lg">
               {card.value}
             </div>
-          )}
+          </div>
+        )}
 
-          {card.type === "machine" && (
+        {card.type === "machine" && (
+          <div className="absolute top-5 left-3">
             <div className="text-3xl font-bold text-white drop-shadow-lg">
               {card.multiplier}
             </div>
-          )}
+          </div>
+        )}
 
-          {card.type === "economy" && (
+        {card.type === "economy" && (
+          <div className="absolute top-4 left-2">
             <div className="text-3xl font-bold text-white drop-shadow-lg">
               +{card.pearlValue}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Badges */}
         {card.upgrades && card.upgrades.length > 0 && (
-          <div className="absolute top-1 right-1 flex gap-1">
+          <div className="absolute top-1 right-1 flex gap-1 flex flex-wrap">
             {card.upgrades.map((badge, index) => (
-              <span key={index} className="text-lg">
-                {badge.emoji}
-              </span>
+              <div key={index} className="w-[50px] h-[50px]">
+                <Image
+                  src={BADGES[badge.type].image}
+                  alt={BADGES[badge.type].name}
+                  width={24}
+                  height={24}
+                  className="w-[50px] h-[50px]"
+                />
+              </div>
             ))}
           </div>
         )}
