@@ -43,17 +43,6 @@ const ShopPhase = observer(() => {
       </motion.button>
     );
 
-    if (finalPrice < basePrice) {
-      return (
-        <div className="flex items-center gap-2">
-          <span className="line-through text-gray-400">
-            {priceButton(basePrice)}
-          </span>
-          {priceButton(finalPrice)}
-        </div>
-      );
-    }
-
     return priceButton(finalPrice);
   };
 
