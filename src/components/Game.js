@@ -28,7 +28,7 @@ import bubble3Image from "../../public/assets/main/bubble3.png";
 import bubble4Image from "../../public/assets/main/bubble4.png";
 import deckImage from "../../public/assets/props/deck.png";
 import discardImage from "../../public/assets/props/discard.png";
-
+import goldImage from "../../public/assets/main/gold.png";
 import slotImage from "../../public/assets/props/leftslot.png";
 
 const CircularProgress = ({ current, goal }) => {
@@ -37,6 +37,9 @@ const CircularProgress = ({ current, goal }) => {
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  // Determine the progress color based on water level
+  const progressColor = current >= goal ? "#4ade80" : "#3b82f6"; // green : blue
 
   return (
     <div className="relative">
@@ -55,20 +58,36 @@ const CircularProgress = ({ current, goal }) => {
           cx="80"
           cy="80"
           r={radius}
-          stroke="#3b82f6"
+          stroke={progressColor}
           strokeWidth="8"
           fill="none"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset }}
+          animate={{
+            strokeDashoffset,
+            stroke: progressColor,
+          }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         />
       </svg>
       {/* Water text in center */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-        <div className="text-[40px] font-bold text-[#D1E0FF]">
+        <motion.div
+          key={current}
+          initial={{ scale: 1, color: "#D1E0FF" }}
+          animate={{
+            scale: [1, 1.2, 1],
+            color: ["#D1E0FF", "#4ade80", "#D1E0FF"],
+          }}
+          transition={{
+            duration: 1,
+            times: [0, 0.5, 1],
+            ease: "easeInOut",
+          }}
+          className="text-[40px] font-bold"
+        >
           {current}/{goal}
-        </div>
+        </motion.div>
         <div className="text-[16px] text-[#D1E0FF]">Clean Water</div>
       </div>
 
@@ -176,11 +195,36 @@ const Game = observer(() => {
       <div className="min-h-screen text-white">
         {/* Header */}
         <div className="flex justify-center w-full relative">
+          <div className="absolute top-2 right-[190px] items-center justify-center flex bg-black rounded-[20px] px-4 -translate-x-1/2 drop-shadow-lg w-fit">
+            <motion.div
+              key={gameStore.state.pearls}
+              initial={{ scale: 1, color: "#C5CFA3" }}
+              animate={{
+                scale: [1, 1.2, 1],
+                color: ["#C5CFA3", "#4ade80", "#C5CFA3"],
+              }}
+              transition={{
+                duration: 1,
+                times: [0, 0.5, 1],
+                ease: "easeInOut",
+              }}
+              className="text-[40px]"
+            >
+              {gameStore.state.pearls}
+            </motion.div>
+            <Image
+              src={goldImage}
+              alt="Gold"
+              width={40}
+              height={40}
+              className="ml-1 w-[40px] h-[40px]"
+            />
+          </div>
           <div
-            className="absolute top-2 right-2 bg-black rounded-[20px] px-4 -translate-x-1/2 text-[40px] drop-shadow-lg w-fit"
+            className="absolute top-2 right-[-80px] bg-black rounded-[20px] px-4 -translate-x-1/2 text-[40px] drop-shadow-lg w-fit"
             style={{ color: "#C5CFA3" }}
           >
-            {gameStore.state.round}/{gameStore.state.maxRounds}
+            Round: {gameStore.state.round}/{gameStore.state.maxRounds}
           </div>
           <div className="flex justify-between items-center  p-4 w-fit">
             <div className="flex gap-4 absolute top-4 left-8">
