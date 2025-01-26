@@ -12,12 +12,25 @@ import {
 } from "@/database";
 
 class GameStore {
+  // Define baseGoals as a class property
+  baseGoals = [
+    20, // Round 1
+    50, // Round 2
+    75, // Round 3
+    100, // Round 4
+    150, // Round 5
+    250, // Round 6
+    300, // Round 7
+    400, // Round 8
+    500, // Round 9
+  ];
+
   state = {
     round: 1,
-    maxRounds: 12,
+    maxRounds: 9,
     currentWater: 0,
-    originalGoal: 20, // Starting goal
-    currentGoal: 20, // Current (possibly reduced) goal
+    originalGoal: 20,
+    currentGoal: 20,
     pearls: 0,
     mainDeck: [],
     discardPile: [],
@@ -25,28 +38,28 @@ class GameStore {
     enemySlots: Array(4).fill(null),
     selectedSlotIndex: null,
     displayedCards: [],
-    removedFromGame: [], // For consumable cards that are removed entirely
+    removedFromGame: [],
     shopDeck: [],
-    isShopPhase: false, // Whether we're in the shop phase
-    shopDisplayedCards: [], // Cards displayed in shop phase
-    rerollCost: 1, // Cost in pearls to reroll
-    rerollsRemaining: 5, // Rerolls per round
-    pearlRerollCost: 1, // Cost in pearls to reroll when out of rerolls
-    waterGoalIncrement: 5, // How much water goal increases per round
-    relics: [], // Owned relics
-    consumables: [], // Owned consumables
-    shopRelics: [], // Currently displayed relics in shop
-    shopConsumables: [], // Currently displayed consumables in shop
-    maxRelics: 5, // Updated from 3 to 5
-    maxConsumables: 5, // Updated from 4 to 5
-    removalCost: 3, // Cost in pearls for removal service
-    cardRemovalOptions: [], // Cards shown for removal
-    selectedCardForRemoval: null, // Card selected to be removed
-    badgeApplicationMode: false, // Whether we're choosing a card to badge
-    currentBadge: null, // Badge to be applied
-    shopRerollCost: 1, // Always costs 1 pearl to reroll in shop
+    isShopPhase: false,
+    shopDisplayedCards: [],
+    rerollCost: 1,
+    rerollsRemaining: 5,
+    pearlRerollCost: 1,
+    waterGoalIncrement: 5,
+    relics: [],
+    consumables: [],
+    shopRelics: [],
+    shopConsumables: [],
+    maxRelics: 5,
+    maxConsumables: 5,
+    removalCost: 3,
+    cardRemovalOptions: [],
+    selectedCardForRemoval: null,
+    badgeApplicationMode: false,
+    currentBadge: null,
+    shopRerollCost: 1,
     selectedBoardCard: null,
-    deckViewerMode: null, // 'discard' | null
+    deckViewerMode: null,
     maxSelectableCards: 0,
     selectedCardsForDiscard: [],
     onDeckViewerClose: null,
@@ -57,7 +70,8 @@ class GameStore {
     randomCardsForBadge: [],
     availableRelics: [...RELICS],
     availableConsumables: [...CONSUMABLES],
-    blueStampsPlayed: 0, // Track blue stamps played this round
+    blueStampsPlayed: 0,
+    isGameOver: false,
   };
 
   constructor() {
@@ -552,9 +566,17 @@ class GameStore {
       this.state.shopDisplayedCards = [];
       this.state.isShopPhase = false;
 
-      // Update round and water goal
-      this.state.round += 1;
-      this.state.currentGoal += this.state.waterGoalIncrement;
+      // Update round and set goal from baseGoals array
+      if (this.state.round < this.state.maxRounds) {
+        this.state.round += 1;
+        const nextGoal = this.baseGoals[this.state.round - 1];
+        if (nextGoal !== undefined) {
+          this.state.currentGoal = nextGoal;
+          this.state.originalGoal = nextGoal;
+        }
+      } else {
+        console.log("Game Complete!");
+      }
 
       // Reset current water
       this.state.currentWater = 0;
@@ -971,13 +993,12 @@ class GameStore {
 
   startNewGame() {
     runInAction(() => {
-      // Reset all state to initial values
       this.state = {
         round: 1,
-        maxRounds: 9, // Changed from 12 to 9
+        maxRounds: 9,
         currentWater: 0,
-        originalGoal: 20,
-        currentGoal: 20,
+        originalGoal: this.baseGoals[0], // Use first goal from array
+        currentGoal: this.baseGoals[0], // Use first goal from array
         pearls: 0,
         mainDeck: [],
         discardPile: [],
@@ -1023,13 +1044,6 @@ class GameStore {
 
       // Initialize decks using existing method
       this.initializeDecks();
-
-      // Initialize the goals array
-      this.baseGoals = Array(this.state.maxRounds)
-        .fill(0)
-        .map((_, index) => {
-          return 20 + index * 5;
-        });
     });
   }
 

@@ -123,59 +123,59 @@ class AudioManager {
         this.unmuteTrack("level1", 0.5);
         break;
       case 3:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
         this.unmuteTrack("level2", 0.5);
         break;
       case 4:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
         this.unmuteTrack("level3", 0.5);
         break;
       case 5:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
-        this.setTrackVolume("level3", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
+        this.setTrackVolume("level3", 0);
         this.unmuteTrack("level4", 0.5);
         break;
       case 6:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
-        this.setTrackVolume("level3", 0.5);
-        this.setTrackVolume("level4", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
+        this.setTrackVolume("level3", 0);
+        this.setTrackVolume("level4", 0);
         this.unmuteTrack("level5", 0.5);
         break;
       case 7:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
-        this.setTrackVolume("level3", 0.5);
-        this.setTrackVolume("level4", 0.5);
-        this.setTrackVolume("level5", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
+        this.setTrackVolume("level3", 0);
+        this.setTrackVolume("level4", 0);
+        this.setTrackVolume("level5", 0);
         this.unmuteTrack("level6", 0.5);
         break;
       case 8:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
-        this.setTrackVolume("level3", 0.5);
-        this.setTrackVolume("level4", 0.5);
-        this.setTrackVolume("level5", 0.5);
-        this.setTrackVolume("level6", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
+        this.setTrackVolume("level3", 0);
+        this.setTrackVolume("level4", 0);
+        this.setTrackVolume("level5", 0);
+        this.setTrackVolume("level6", 0);
         this.unmuteTrack("level7", 0.5);
         break;
       case 9:
-        this.setTrackVolume("base", 0.5);
-        this.setTrackVolume("level1", 0.5);
-        this.setTrackVolume("level2", 0.5);
-        this.setTrackVolume("level3", 0.5);
-        this.setTrackVolume("level4", 0.5);
-        this.setTrackVolume("level5", 0.5);
-        this.setTrackVolume("level6", 0.5);
-        this.setTrackVolume("level7", 0.5);
+        this.setTrackVolume("base", 0);
+        this.setTrackVolume("level1", 0);
+        this.setTrackVolume("level2", 0);
+        this.setTrackVolume("level3", 0);
+        this.setTrackVolume("level4", 0);
+        this.setTrackVolume("level5", 0);
+        this.setTrackVolume("level6", 0);
+        this.setTrackVolume("level7", 0);
         this.unmuteTrack("level8", 0.5);
         break;
       default:
