@@ -4,6 +4,7 @@ import { gameStore } from "@/stores/gameStore";
 import Card from "./Card";
 import Image from "next/image";
 import { BADGES } from "@/database";
+import disenchantImg from "../../public/assets/main/disenchant.png";
 
 const CardRemovalService = observer(() => {
   if (!gameStore.state.cardRemovalOptions.length) {
@@ -15,7 +16,13 @@ const CardRemovalService = observer(() => {
         onClick={() => gameStore.startCardRemoval()}
         disabled={gameStore.state.pearls < gameStore.state.removalCost}
       >
-        🔨
+        <Image
+          src={disenchantImg}
+          alt="Disenchant"
+          width={400}
+          height={400}
+          className="w-[80px] h-[80px]"
+        />
       </motion.button>
     );
   }

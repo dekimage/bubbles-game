@@ -204,15 +204,15 @@ const Game = observer(() => {
   return (
     <>
       {/* Background Image */}
-      <div className="fixed inset-0 -z-10">
+      <div className="fixed inset-0 -z-10 flex items-center justify-center">
         <Image
           src={bgImage}
           alt="Ocean background"
           priority
-          className="w-screen h-screen"
+          className="object-cover min-h-screen w-full"
           quality={100}
-          height={1440}
-          width={2560}
+          fill
+          sizes="100vw"
         />
         {/* Dark overlay when cards are displayed */}
         {gameStore.state.displayedCards.length > 0 && (

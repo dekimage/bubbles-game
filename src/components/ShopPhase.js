@@ -59,11 +59,11 @@ const ShopPhase = observer(() => {
 
   return (
     <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center">
-      <div className="w-full h-full max-w-[100vw] max-h-[100vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative ">
+      <div className="w-full h-full max-w-[100vw] max-h-[140vh] bg-slate-800/90 rounded-lg p-8 overflow-y-auto relative ">
         {/* Background Image */}
         <div className="inset-0 rounded-lg overflow-hidden -z-100">
           <Image
-            src="/assets/main/shopbg.png"
+            src="/assets/main/shopbg2.png"
             alt="Shop background"
             fill
             priority
@@ -185,12 +185,12 @@ const ShopPhase = observer(() => {
               {gameStore.state.shopRelics.map((relic) => (
                 <div
                   key={relic.id}
-                  className="flex flex-col items-center gap-2"
+                  className="flex flex-col items-center gap-6"
                 >
                   <Popover.Root>
                     <Popover.Trigger asChild>
                       <motion.div
-                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600"
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-[20px] cursor-pointer hover:bg-slate-600"
                         whileHover={{ scale: 1.05 }}
                       >
                         <Image
@@ -225,12 +225,12 @@ const ShopPhase = observer(() => {
               {gameStore.state.shopConsumables.map((consumable) => (
                 <div
                   key={consumable.id}
-                  className="flex flex-col items-center gap-2"
+                  className="flex flex-col items-center gap-6"
                 >
                   <Popover.Root>
                     <Popover.Trigger asChild>
                       <motion.div
-                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600"
+                        className="w-16 h-16 flex items-center justify-center bg-slate-700 rounded-[20px] cursor-pointer hover:bg-slate-600"
                         whileHover={{ scale: 1.05 }}
                       >
                         <Image
@@ -258,12 +258,21 @@ const ShopPhase = observer(() => {
           </div>
 
           {/* Card Removal Service */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
+          <div className="space-y-4 flex justify-center">
+            <div className="flex items-center gap-4 border border-black rounded-[20px] p-4">
               <CardRemovalService />
-              <span className="text-slate-400">
-                Remove a card and upgrade another (Cost: 💎{" "}
-                {gameStore.state.removalCost})
+              <span className="text-slate-400 flex items-center gap-2">
+                Remove a card and upgrade another{" "}
+                <span className="text-white text-[20px]">
+                  {/* ({gameStore.state.removalCost}) */}3
+                </span>
+                <Image
+                  src={goldImage}
+                  alt="Gold"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
               </span>
             </div>
           </div>
