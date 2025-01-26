@@ -94,16 +94,15 @@ const CircularProgress = ({ current, goal }) => {
       </div>
 
       {/* Debug Button - Only in Development */}
-      {isDevelopment && (
-        <button
-          onClick={() => gameStore.addWater(100)}
-          className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 
+
+      <button
+        onClick={() => gameStore.addWater(1000)}
+        className="absolute -bottom-40 left-1/2 -translate-x-1/2 px-2 py-1 
                      bg-blue-600 hover:bg-blue-500 rounded text-xs text-white
                      transition-colors"
-        >
-          +100 Water (Dev)
-        </button>
-      )}
+      >
+        CHEAT
+      </button>
     </div>
   );
 };
