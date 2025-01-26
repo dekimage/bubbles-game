@@ -109,7 +109,7 @@ const ShopPhase = observer(() => {
                         whileHover={{ scale: 1.05 }}
                         className="cursor-pointer"
                       >
-                        <Card card={card} />
+                        <Card card={card} fromHand />
                       </motion.div>
                       <div
                         className={`flex items-center gap-1 font-bold

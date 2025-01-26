@@ -133,6 +133,17 @@ const Card = ({
             <div className="font-bold text-white drop-shadow-lg">
               {card.value}
             </div>
+            {card.cost && (
+              <div
+                className={`absolute text-2xl font-bold text-white drop-shadow-lg ${
+                  fromHand
+                    ? "left-[76px] -translate-x-1/2 top-[145px]"
+                    : "left-[50px] -translate-x-1/2 top-[95px]"
+                }`}
+              >
+                {card.cost}
+              </div>
+            )}
           </div>
         )}
 
@@ -142,23 +153,43 @@ const Card = ({
               fromHand ? "top-5 left-1 text-4xl" : "top-1 left-1 text-2xl"
             }`}
           >
-            <div className=" font-bold text-white drop-shadow-lg">
+            <div className="font-bold text-white drop-shadow-lg">
               x{card.multiplier}
             </div>
+            {card.cost && (
+              <div
+                className={`absolute text-2xl font-bold text-white drop-shadow-lg ${
+                  fromHand
+                    ? "left-[84px] -translate-x-1/2 top-[133px]"
+                    : "left-[60px] -translate-x-1/2 top-[92px]"
+                }`}
+              >
+                {card.cost}
+              </div>
+            )}
           </div>
         )}
 
         {card.type === "economy" && (
           <div
-            className={`absolute ${
-              fromHand
-                ? "top-1/2 left-1/2 -translate-x-1/2 text-[60px]"
-                : "top-4 left-2 text-2xl"
+            className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 ${
+              fromHand ? "text-[60px] top-[135px]" : "text-[40px] top-[90px]"
             }`}
           >
-            <div className=" font-bold text-white drop-shadow-lg">
-              +{card.pearlValue}
+            <div className="font-bold text-white drop-shadow-lg">
+              {card.pearlValue}
             </div>
+            {card.cost && (
+              <div
+                className={`absolute text-2xl font-bold text-white drop-shadow-lg ${
+                  fromHand
+                    ? "left-[76px] -translate-x-1/2 top-[145px]"
+                    : "left-[50px] -translate-x-1/2 top-[95px]"
+                }`}
+              >
+                {card.cost}
+              </div>
+            )}
           </div>
         )}
 

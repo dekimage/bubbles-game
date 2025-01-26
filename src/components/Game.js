@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { motion, animate } from "framer-motion";
+import { motion, animate, AnimatePresence } from "framer-motion";
 import { gameStore } from "@/stores/gameStore";
 import {
   FaTrashAlt,
@@ -497,65 +497,98 @@ const Game = observer(() => {
         </div>
 
         {/* Bottom Section */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 p-2 w-fit rounded-t-[20px] z-20 bg-black/50">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 p-2 w-fit rounded-t-[20px] z-20">
           {/* Card Selection with Next Round Button */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              {gameStore.state.displayedCards.length > 0 && (
-                <div className="flex flex-col items-center gap-4">
-                  {/* Card Options */}
-                  <div className="flex justify-center items-center gap-4 h-48 mb-8">
-                    {gameStore.state.displayedCards.map((card, index) => (
-                      <div
-                        key={card.id}
-                        className={`transform transition-transform hover:scale-105 ${
-                          index === 0
-                            ? "-rotate-6 translate-y-2"
-                            : index === 1
-                            ? "-translate-y-4"
-                            : "rotate-6 translate-y-2"
-                        }`}
-                      >
-                        <Card
-                          card={card}
-                          onClick={() => gameStore.selectCard(card)}
-                          fromHand={true}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Reroll Button */}
-                  <motion.button
-                    className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2
-                              ${
-                                gameStore.canReroll()
-                                  ? "bg-purple-600 hover:bg-purple-500"
-                                  : "bg-gray-600 cursor-not-allowed opacity-50"
-                              }`}
-                    whileHover={gameStore.canReroll() ? { scale: 1.05 } : {}}
-                    whileTap={gameStore.canReroll() ? { scale: 0.95 } : {}}
-                    onClick={() => gameStore.rerollCards()}
-                    disabled={!gameStore.canReroll()}
+              <AnimatePresence>
+                {gameStore.state.displayedCards.length > 0 && (
+                  <motion.div
+                    className="flex flex-col items-center gap-4"
+                    initial={{ y: 100, opacity: 0, scale: 0.3 }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    exit={{
+                      y: [0, -20, 100],
+                      opacity: [1, 1, 0],
+                      scale: [1, 1.1, 0.3],
+                    }}
+                    transition={{
+                      exit: {
+                        duration: 0.8,
+                        times: [0, 0.3, 1],
+                        ease: "easeInOut",
+                        opacity: { duration: 0.3, delay: 0.5 },
+                        scale: {
+                          duration: 0.8,
+                          ease: "backIn",
+                        },
+                      },
+                      enter: {
+                        duration: 0.8,
+                        times: [0, 0.6, 0.8, 1],
+                        ease: "backOut",
+                        opacity: { duration: 0.3 },
+                        scale: {
+                          duration: 0.8,
+                          ease: "backOut",
+                        },
+                      },
+                    }}
                   >
-                    <FaRedoAlt className="animate-spin-slow" />
-                    Reroll ({gameStore.getRerollCost()})
-                  </motion.button>
+                    {/* Card Options */}
+                    <div className="flex justify-center items-center gap-4 h-48 mb-8">
+                      {gameStore.state.displayedCards.map((card, index) => (
+                        <div
+                          key={card.id}
+                          className={`transform transition-transform hover:scale-105 ${
+                            index === 0
+                              ? "-rotate-6 translate-y-2"
+                              : index === 1
+                              ? "-translate-y-4"
+                              : "rotate-6 translate-y-2"
+                          }`}
+                        >
+                          <Card
+                            card={card}
+                            onClick={() => gameStore.selectCard(card)}
+                            fromHand={true}
+                          />
+                        </div>
+                      ))}
+                    </div>
 
-                  {/* Skip button for shop choices */}
-                  {gameStore.state.selectedSlotIndex ===
-                    gameStore.state.shopSlotIndex && (
+                    {/* Reroll Button */}
                     <motion.button
-                      className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => gameStore.skipShopChoice()}
+                      className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2
+                                ${
+                                  gameStore.canReroll()
+                                    ? "bg-purple-600 hover:bg-purple-500"
+                                    : "bg-gray-600 cursor-not-allowed opacity-50"
+                                }`}
+                      whileHover={gameStore.canReroll() ? { scale: 1.05 } : {}}
+                      whileTap={gameStore.canReroll() ? { scale: 0.95 } : {}}
+                      onClick={() => gameStore.rerollCards()}
+                      disabled={!gameStore.canReroll()}
                     >
-                      Skip (Decide Later)
+                      <FaRedoAlt className="animate-spin-slow" />
+                      Reroll ({gameStore.getRerollCost()})
                     </motion.button>
-                  )}
-                </div>
-              )}
+
+                    {/* Skip button for shop choices */}
+                    {gameStore.state.selectedSlotIndex ===
+                      gameStore.state.shopSlotIndex && (
+                      <motion.button
+                        className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => gameStore.skipShopChoice()}
+                      >
+                        Skip (Decide Later)
+                      </motion.button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
